@@ -18,6 +18,13 @@ img, video, canvas, svg { display: block; max-width: 100%; }
 
 button, input, select, textarea { font: inherit; color: inherit; background: none; border: 0; outline: 0; }
 
+@import url('https://rsms.me/inter/inter.css');
+
+body {
+  font-family: 'Inter', sans-serif;
+  letter-spacing: -0.02em; /* Inter는 살짝 좁혀야 제맛입니다 */
+}
+
 body {
     background-image: url("img/bg.jpg");
     background-size: cover;
@@ -27,7 +34,9 @@ body {
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+    /*font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;*/
+    font-family: 'Inter', sans-serif;
+    letter-spacing: -0.02em;
     padding: 20px;
 }
 
@@ -101,7 +110,7 @@ p {
     flex-direction: column;
     align-items: flex-start;
     gap: 0px; /* 제목과 설명 사이 간격을 거의 붙임 */
-    line-height: 1.5; /* 줄바꿈 간격도 타이트하게 */
+    line-height: 1.3; /* 줄바꿈 간격도 타이트하게 */
 }
 
 /* 제목 스타일 */
