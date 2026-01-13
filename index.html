@@ -1,218 +1,95 @@
 <!DOCTYPE html>
+<html lang="ko">
 <head>
-<title>TENSOR INDEX</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:site" content="@tensortwt">
-<meta name="twitter:title" content="TENSOR LINK DIRECTORY">
-<meta name="twitter:description" content="">
-<meta name="twitter:image" content="https://tensorgitdev.github.io/index/img/card.jpg">
-
-<meta property="og:type" content="website">
-<meta property="og:url" content="https://tensorgitdev.github.io/index/">
-<meta property="og:title" content="TENSOR LINK DIRECTORY">
-<meta property="og:description" content="">
-<meta property="og:image" content="https://tensorgitdev.github.io/index/img/card.jpg">
-<style>
-html, body {height: 100%;}
-*,
-*::before,
-*::after { margin: 0; padding: 0; box-sizing: border-box; }
-
-html, body { height: 100%; }
-
-ul, ol { list-style: none; }
-
-a { text-decoration: none; color: inherit; }
-
-img, video, canvas, svg { display: block; max-width: 100%; }
-
-button, input, select, textarea { font: inherit; color: inherit; background: none; border: 0; outline: 0; }
-
-@import url('https://rsms.me/inter/inter.css');
-
-body {
-  font-family: 'Inter', sans-serif;
-  letter-spacing: -0.02em; /* Inter는 살짝 좁혀야 제맛입니다 */
-}
-
-body {
-    /* 기존 배경 설정 */
-    background-image: url("img/bg.jpg");
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
+    <meta charset="UTF-8">
+    <title>TENSOR INDEX</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    /* [추가] 스크롤을 내려도 배경 이미지는 고정되게 만듭니다. */
-    background-attachment: fixed; 
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@tensortwt">
+    <meta name="twitter:title" content="TENSOR LINK DIRECTORY">
+    <meta name="twitter:description" content="Archive of my artworks and dumps.">
+    <meta name="twitter:image" content="https://tensorgitdev.github.io/index/img/card.jpg">
 
-    /* [선택 사항] 배경 이미지가 로딩되기 전이나 잘릴 때를 대비해 유사한 배경색 지정 */
-    background-color: #f0f2f5; 
+    <meta property="og:url" content="https://tensorgitdev.github.io/index/">
+    <meta property="og:title" content="TENSOR LINK DIRECTORY">
+    <meta property="og:image" content="https://tensorgitdev.github.io/index/img/card.jpg">
 
-    display: flex;
-    flex-direction: column; /* 중앙 정렬을 위해 추가 */
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    font-family: 'Inter', sans-serif;
-    letter-spacing: -0.02em;
-    padding: 60px 20px;
-}
-
-/* 중앙 컨테이너 */
-.container {
-    width: 100%;
-    max-width: 380px; /* 모바일에서 딱 예쁜 너비 */
-    text-align: center;
-    animation: fadeIn 0.8s ease-out; /* 등장 애니메이션 */
-}
-
-/* 프로필 영역 */
-.profile {
-    margin-bottom: 40px;
-}
-
-.avatar {
-    width: 100px;
-    height: 100px;
-    background: rgba(255, 255, 255, 0.3); /* 사진 없을 때 기본 배경 */
-    border-radius: 50%;
-    margin: 0 auto 15px;
-    border: 3px solid white;
-    box-shadow: 0 8px 16px rgba(0,0,0,0.1);
-    /* 이미지를 넣으려면 아래 주석을 해제하세요 */
-    background-image: url('img/avatar.png'); background-size: cover; 
-}
-
-h1 { 
-    color: white; 
-    font-size: 1.8rem; 
-   /* text-shadow: 0 2px 4px rgba(0,0,0,0.2); */
-    margin-bottom: 8px;
-}
-
-p { 
-    color: rgba(255, 255, 255, 0.5); 
-    font-size: 1rem; 
-    font-weight: 300;
-}
-
-/* 링크 리스트 */
-.links {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin: 10px auto;
-}
-
-/* 링크 카드 내부 정렬 수정 */
-.link-card {
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    gap: 20px; /* 아이콘과 텍스트 사이 간격 살짝 줄임 */
-    
-    /* 위아래 패딩을 12px로 확 줄여서 슬림하게 만듦 */
-    padding: 20px 20px; 
-    background: rgba(255, 255, 255, 0.15);
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 14px; /* 슬림해진 만큼 곡률도 살짝 조정 */
-    color: white;
-    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-    margin-bottom: 10px; /* 카드 사이의 간격도 10px로 최적화 */
-}
-
-/* 텍스트 덩어리 */
-.card-text {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0px; /* 제목과 설명 사이 간격을 거의 붙임 */
-    line-height: 1.3; /* 줄바꿈 간격도 타이트하게 */
-}
-
-/* 제목 스타일 */
-.card-title {
-    font-size: 1.1rem; /* 폰트 사이즈 살짝 조절 */
-    font-weight: 600;
-}
-
-/* 설명 스타일 */
-.card-desc {
-    font-size: 1rem;
-    color: rgba(255, 255, 255, 0.6);
-    font-weight: 400;
-}
-
-/* 호버 시 떠오르는 높이도 살짝 줄여서 일관성 유지 */
-.link-card:hover {
-    background: rgba(255, 255, 255, 0.35);
-    transform: translateY(-3px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-}
-
-/* 아이콘 크기도 슬림한 카드에 맞춰 조정 */
-.icon {
-    width: 32px;
-    height: 32px;
-    object-fit: contain;
-    margin-left: 10px;
-}
-
-.bar {font-size: 0.8rem; position: relative; top: -2px; opacity: 0.5;}
-</style>
-
+    <link href="style.css" rel="stylesheet" />
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
 </head>
 <body>
 
+
 <div class="container">
-    <div class="profile">
+    <div class="profile" data-aos="fade-down">
         <div class="avatar"></div>
         <h1>TENSOR</h1>
-        <p>tensorggacc@gmail.com</p>
+        <p class="email">tensorggacc@gmail.com</p>
+    </div>
+
+    <!-- 버튼들 여기 자동 생성됨 -->
+    <div class="emoji-quick-buttons" data-aos="fade-up" data-aos-delay="200"></div>
+
+    <div class="message-form" data-aos="fade-up" data-aos-delay="300">
+    <textarea id="gb-input" placeholder="feel free to ask or req anything"></textarea>
+    
+    <div class="message-actions">
+        <select id="emoji-select">
+        </select>
+        
+        <button id="gb-submit">submit</button>
+    </div>
     </div>
 
     <div class="links">
-        <a href="https://x.com/tensortwt" class="link-card" target="_blank">
+        <a href="https://x.com/tensortwt" class="link-card" target="_blank" data-aos="fade-up" data-aos-delay="400">
             <img src="img/icon-twt.png" alt="" class="icon">
             <div class="card-text">
                 <span class="card-title">@tensortwt</span>
                 <span class="card-desc">kor <span class="bar">|</span> fanarts only</span>
             </div>
         </a>
-        <a href="https://x.com/tensortmp" class="link-card" target="_blank">
+        
+        <a href="https://x.com/tensortmp" class="link-card" target="_blank" data-aos="fade-up" data-aos-delay="500">
             <img src="img/icon-twt.png" alt="" class="icon">
             <div class="card-text">
                 <span class="card-title">@tensortmp</span>
                 <span class="card-desc">kor <span class="bar">|</span> dump</span>
             </div>
         </a>
-        <a href="https://www.tumblr.com/tensortblr" class="link-card" target="_blank">
+
+        <a href="https://www.tumblr.com/tensortblr" class="link-card" target="_blank" data-aos="fade-up" data-aos-delay="600">
             <img src="img/icon-tumblr.png" alt="" class="icon">
             <div class="card-text">
                 <span class="card-title">@tensortblr</span>
                 <span class="card-desc">eng <span class="bar">|</span> dump</span>
             </div>
         </a>
-        <a href="https://tensorbsky.bsky.social" class="link-card" target="_blank">
+
+        <a href="https://tensorbsky.bsky.social" class="link-card" target="_blank" data-aos="fade-up" data-aos-delay="700">
             <img src="img/icon-bsky.png" alt="" class="icon">
             <div class="card-text">
                 <span class="card-title">@tensorbsky.bsky.social</span>
                 <span class="card-desc">eng <span class="bar">|</span> fanarts only</span>
             </div>
         </a>
-        <a href="https://wavebox.me/wave/5mj1ivyw6v3roeas/" class="link-card" target="_blank">
-            <img src="img/icon-ask.png" alt="" class="icon">
-            <div class="card-text">
-                <span class="card-title">wavebox</span>
-                <span class="card-desc">feel free to ask or req anything</span>
-            </div>
-        </a>
-       
     </div>
 </div>
+
+
+<script src="api.js" defer></script>
+<script src="script.js" defer></script>
+
+
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script>
+  AOS.init({
+    duration: 1000, // 애니메이션 속도 (1초)
+    easing: 'ease-out-back', // 약간 통 튀는 듯한 부드러운 느낌
+    once: true // 스크롤 올릴 때 다시 안 나오게 (깔끔함)
+  });
+</script>
 
 </body>
 </html>
