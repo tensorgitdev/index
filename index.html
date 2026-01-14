@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>TENSOR INDEX</title>
+    <title>TENSOR LINK DIRECTORY</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
     <meta name="twitter:card" content="summary_large_image">
@@ -15,6 +15,7 @@
     <meta property="og:title" content="TENSOR LINK DIRECTORY">
     <meta property="og:image" content="https://tensorgitdev.github.io/index/img/card.jpg">
 
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <link href="style.css" rel="stylesheet" />
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
 </head>
@@ -29,21 +30,20 @@
     </div>
 
     <!-- 버튼들 여기 자동 생성됨 -->
-    <div class="emoji-quick-buttons" data-aos="fade-up" data-aos-delay="200"></div>
+     <div  data-aos="fade-up" data-aos-delay="200">
+         <div class="emoji-quick-buttons"></div>
+         <div class="message-form">
+             <textarea id="gb-input" placeholder="feel free to ask or req anything"></textarea>
+             <div class="message-actions">
+                 <select id="emoji-select">
+                 </select>
+                 <button id="gb-submit">submit</button>
+             </div>
+         </div>
+     </div>
 
-    <div class="message-form" data-aos="fade-up" data-aos-delay="300">
-    <textarea id="gb-input" placeholder="feel free to ask or req anything"></textarea>
-    
-    <div class="message-actions">
-        <select id="emoji-select">
-        </select>
-        
-        <button id="gb-submit">submit</button>
-    </div>
-    </div>
-
-    <div class="links">
-        <a href="https://x.com/tensortwt" class="link-card" target="_blank" data-aos="fade-up" data-aos-delay="400">
+    <div class="links" data-aos="fade-up" data-aos-delay="400">
+        <a href="https://x.com/tensortwt" class="link-card" target="_blank">
             <img src="img/icon-twt.png" alt="" class="icon">
             <div class="card-text">
                 <span class="card-title">@tensortwt</span>
@@ -51,7 +51,7 @@
             </div>
         </a>
         
-        <a href="https://x.com/tensortmp" class="link-card" target="_blank" data-aos="fade-up" data-aos-delay="500">
+        <a href="https://x.com/tensortmp" class="link-card" target="_blank">
             <img src="img/icon-twt.png" alt="" class="icon">
             <div class="card-text">
                 <span class="card-title">@tensortmp</span>
@@ -59,7 +59,7 @@
             </div>
         </a>
 
-        <a href="https://www.tumblr.com/tensortblr" class="link-card" target="_blank" data-aos="fade-up" data-aos-delay="600">
+        <a href="https://www.tumblr.com/tensortblr" class="link-card" target="_blank">
             <img src="img/icon-tumblr.png" alt="" class="icon">
             <div class="card-text">
                 <span class="card-title">@tensortblr</span>
@@ -67,7 +67,7 @@
             </div>
         </a>
 
-        <a href="https://tensorbsky.bsky.social" class="link-card" target="_blank" data-aos="fade-up" data-aos-delay="700">
+        <a href="https://tensorbsky.bsky.social" class="link-card" target="_blank">
             <img src="img/icon-bsky.png" alt="" class="icon">
             <div class="card-text">
                 <span class="card-title">@tensorbsky.bsky.social</span>
