@@ -159,3 +159,7 @@ p.email { color: rgba(255, 255, 255, 0.5); font-size: 0.9rem; }
     from { transform: rotate(0deg); }
     to { transform: rotate(360deg); }
 }
+
+
+.swal2-title {font-size: 1rem;}
+.swal2-confirm.swal2-styled {background: linear-gradient(45deg, #A4D1D6, #AC99CA) !important;}
