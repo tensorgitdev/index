@@ -15,6 +15,11 @@
     <meta property="og:title" content="TENSOR LINK DIRECTORY">
     <meta property="og:image" content="https://tensorgitdev.github.io/index/img/card.jpg">
 
+    <link rel="icon" href="img/favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="img/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="img/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="img/apple-touch-icon.png">
+
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <link href="style.css" rel="stylesheet" />
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
@@ -92,11 +97,17 @@
 
 <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
 <script>
-  AOS.init({
-    duration: 1000, // 애니메이션 속도 (1초)
-    easing: 'ease-out-back', // 약간 통 튀는 듯한 부드러운 느낌
-    once: true // 스크롤 올릴 때 다시 안 나오게 (깔끔함)
-  });
+
+
+$(document).ready(function(){
+    AOS.init({
+        duration: 1000,
+        easing: 'ease-out-back', 
+        once: true 
+    });
+    logVisit();  
+
+});
 </script>
 
 <!-- 개스레기같은 깃헙 -->
