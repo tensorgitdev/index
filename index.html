@@ -21,9 +21,20 @@
 <link rel="apple-touch-icon" sizes="180x180" href="img/apple-touch-icon.png">
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-<link href="style.css" rel="stylesheet" />
 <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://twemoji.maxcdn.com/v/latest/twemoji.min.js"></script>
+
+<!-- 토스티파이 -->
+<!--<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+<script src="https://cdn.jsdelivr.net/npm/toastify-js"></script> -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
+<script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
+
+<script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+
+<link href="style.css" rel="stylesheet" />
+
 </head>
 <body>
 
@@ -111,6 +122,7 @@ $(document).ready(function(){
         once: true 
     });
     logVisit();  
+    twemoji.parse(document.body);
 
 });
 </script>

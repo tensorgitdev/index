@@ -163,3 +163,29 @@ p.email { color: rgba(255, 255, 255, 0.5); font-size: 0.9rem; }
 
 .swal2-title {font-size: 1rem;}
 .swal2-confirm.swal2-styled {background: linear-gradient(45deg, #A4D1D6, #AC99CA) !important;}
+
+img.emoji {
+  width: 1em;
+  height: 1em;
+  vertical-align: -0.1em; /* 글자와 맞춤 */
+}
+
+.notyf__wrapper {padding-right:0;}
+.notyf__toast {
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(4px);
+    border-radius: 12px;
+    border:1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 10px 10px 0 rgba(0, 0, 0, .1);
+    transition: all 0.5s ease-in-out;
+}
+
+.notyf__toast.success-state {
+background: #4caf50 !important;
+}
+.notyf__toast.error-state {
+background: #f44336 !important;
+}
+
+.lottie-wrapper {display:flex; gap: 5px; margin-right: 5px;}
+.lottie-wrapper lottie-player {position: relative; top: 2px;}
