@@ -69,7 +69,6 @@ tabBtns.forEach(btn => {
         }
     });
 });
-
 // 방문자 로그 가져오기
 async function loadVisitorLogs() {
     try {
@@ -80,14 +79,24 @@ async function loadVisitorLogs() {
 
         if (error) throw error;
 
+        // 오늘 날짜 계산 (YYYYMMDD 형식)
+        const now = new Date();
+        const todayInt = parseInt(
+            now.getFullYear().toString() +
+            (now.getMonth() + 1).toString().padStart(2, '0') +
+            now.getDate().toString().padStart(2, '0')
+        );
+
         // 통계 계산
         const total = data.length;
         const mobile = data.filter(v => v.vl_device_type === 'mobile').length;
         const pc = data.filter(v => v.vl_device_type === 'pc').length;
+        const today = data.filter(v => v.vl_date_int === todayInt).length;
 
         document.getElementById('totalVisitors').textContent = total;
         document.getElementById('mobileVisitors').textContent = mobile;
         document.getElementById('pcVisitors').textContent = pc;
+        document.getElementById('todayVisitors').textContent = today;
 
         // 테이블 생성
         if (data.length === 0) {
