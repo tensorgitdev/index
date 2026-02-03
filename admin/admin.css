@@ -5,7 +5,15 @@
 }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    "Apple Color Emoji",
+    "Segoe UI Emoji",
+    "Noto Color Emoji",
+    sans-serif;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     min-height: 100vh;
     display: flex;
@@ -13,6 +21,7 @@ body {
     justify-content: center;
     padding: 20px;
 }
+
 
 .container {
     background: white;
@@ -238,6 +247,15 @@ td {
     color: #666;
 }
 
+th, td {  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    "Apple Color Emoji",
+    "Segoe UI Emoji",
+    "Noto Color Emoji", sans-serif !important;}
+
 tr:hover {
     background: #f8f9fa;
 }
@@ -279,4 +297,10 @@ tr:hover {
 
 .emoji-display {
     font-size: 20px;
+}
+
+img.emoji {
+  width: 1em;
+  height: 1em;
+  vertical-align: -0.1em; /* 글자와 맞춤 */
 }

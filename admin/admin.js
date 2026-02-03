@@ -1,3 +1,5 @@
+twemoji.parse(document.body);
+
 // Supabase 설정
 const SUPABASE_URL = 'https://mqruxlhrxniyzbhkhmtc.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1xcnV4bGhyeG5peXpiaGtobXRjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgzMjgzMDIsImV4cCI6MjA4MzkwNDMwMn0.qPt-dN4Uj0d0pKU11AYy782XMuoXeJ7CFiVXmEyrJzA';
@@ -48,6 +50,43 @@ function formatDate(dateString) {
     return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 }
 
+// User Agent 파싱 함수
+function parseUserAgent(ua) {
+    if (!ua || ua === 'unknown') return { browser: '-', os: '-', device: '-' };
+    
+    // 브라우저 감지
+    let browser = 'Unknown';
+    if (ua.includes('Edg/')) browser = 'Edge';
+    else if (ua.includes('Chrome/') && !ua.includes('Edg')) browser = 'Chrome';
+    else if (ua.includes('Safari/') && !ua.includes('Chrome')) browser = 'Safari';
+    else if (ua.includes('Firefox/')) browser = 'Firefox';
+    else if (ua.includes('Opera/') || ua.includes('OPR/')) browser = 'Opera';
+    
+    // OS 감지
+    let os = 'Unknown';
+    if (ua.includes('Windows NT 10.0')) os = 'Windows 10/11';
+    else if (ua.includes('Windows NT')) os = 'Windows';
+    else if (ua.includes('Mac OS X')) os = 'macOS';
+    else if (ua.includes('Android')) {
+        const match = ua.match(/Android (\d+)/);
+        os = match ? `Android ${match[1]}` : 'Android';
+    }
+    else if (ua.includes('iPhone') || ua.includes('iPad')) {
+        const match = ua.match(/OS (\d+)_(\d+)/);
+        os = match ? `iOS ${match[1]}` : 'iOS';
+    }
+    else if (ua.includes('Linux')) os = 'Linux';
+    
+    // 디바이스
+    let device = 'PC';
+    if (ua.includes('iPhone')) device = 'iPhone';
+    else if (ua.includes('iPad')) device = 'iPad';
+    else if (ua.includes('Android')) device = 'Android';
+    else if (ua.includes('Mobile')) device = 'Mobile';
+    
+    return { browser, os, device };
+}
+
 // 탭 전환
 tabBtns.forEach(btn => {
     btn.addEventListener('click', () => {
@@ -69,6 +108,18 @@ tabBtns.forEach(btn => {
         }
     });
 });
+
+// 국가 코드를 국기 이모지로 변환
+function countryCodeToFlag(code) {
+    if (!code || code === '-' || code === 'unknown' || code === 'LOCAL') return code;
+    
+    const codePoints = code
+        .toUpperCase()
+        .split('')
+        .map(char => 127397 + char.charCodeAt());
+    return String.fromCodePoint(...codePoints);
+}
+
 // 방문자 로그 가져오기
 async function loadVisitorLogs() {
     try {
@@ -79,7 +130,6 @@ async function loadVisitorLogs() {
 
         if (error) throw error;
 
-        // 오늘 날짜 계산 (YYYYMMDD 형식)
         const now = new Date();
         const todayInt = parseInt(
             now.getFullYear().toString() +
@@ -87,7 +137,6 @@ async function loadVisitorLogs() {
             now.getDate().toString().padStart(2, '0')
         );
 
-        // 통계 계산
         const total = data.length;
         const mobile = data.filter(v => v.vl_device_type === 'mobile').length;
         const pc = data.filter(v => v.vl_device_type === 'pc').length;
@@ -98,29 +147,36 @@ async function loadVisitorLogs() {
         document.getElementById('pcVisitors').textContent = pc;
         document.getElementById('todayVisitors').textContent = today;
 
-        // 테이블 생성
         if (data.length === 0) {
             visitorBody.innerHTML = '<tr><td colspan="6" class="loading">데이터가 없습니다.</td></tr>';
             return;
         }
 
-        visitorBody.innerHTML = data.map(log => `
-            <tr>
-                <td>${log.vl_date_int}</td>
-                <td>${formatDate(log.vl_visited_at)}</td>
-                <td>${log.vl_ip}</td>
-                <td style="max-width: 400px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${log.vl_user_agent}">${log.vl_user_agent}</td>
-                <td><span class="device-badge device-${log.vl_device_type}">${log.vl_device_type.toUpperCase()}</span></td>
-                <td>${log.vl_country_code || '-'}</td>
-            </tr>
-        `).join('');
+        visitorBody.innerHTML = data.map(log => {
+            const parsed = parseUserAgent(log.vl_user_agent);
+            const flag = countryCodeToFlag(log.vl_country_code); // 여기 추가됐나 확인
+            
+            return `
+                <tr>
+                    <td>${formatDate(log.vl_visited_at)}</td>
+                    <td>${log.vl_ip}</td>
+                    <td>
+                        <div><strong>${parsed.browser}</strong> on ${parsed.os}</div>
+                        <div style="font-size: 11px; color: #999;" title="${log.vl_user_agent}">${parsed.device}</div>
+                    </td>
+                    <td><span class="device-badge device-${log.vl_device_type}">${log.vl_device_type.toUpperCase()}</span></td>
+                    <td style="font-size: 1.5em;" title="${log.vl_country_code}">${flag}</td>
+                </tr>
+            `;
+        }).join('');
+        twemoji.parse(document.body);
+
 
     } catch (error) {
         console.error('Error loading visitor logs:', error);
         visitorBody.innerHTML = '<tr><td colspan="6" class="loading" style="color: #c33;">데이터 로드 실패</td></tr>';
     }
 }
-
 // 방명록 가져오기
 // 방명록 가져오기
 async function loadGuestbook() {
@@ -157,6 +213,7 @@ async function loadGuestbook() {
                 <td style="max-width: 400px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${gb.gb_user_agent || ''}">${gb.gb_user_agent || '-'}</td>
             </tr>
         `).join('');
+        twemoji.parse(document.body);
 
     } catch (error) {
         console.error('Error loading guestbook:', error);
