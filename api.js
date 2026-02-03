@@ -20,6 +20,13 @@ async function submitGuestbook(message, emoji) {
   return await res.json();
 }
 
+// 제외할 IP 목록 (본인 IP 추가)
+const EXCLUDED_IPS = [
+  '59.18.144.11',  // 본인 PC IP
+  '59.18.144.11',  // 본인 모바일 IP
+  // 필요한 만큼 추가
+];
+
 async function logVisit() {
   try {
     const response = await fetch('https://mqruxlhrxniyzbhkhmtc.supabase.co/functions/v1/swift-endpoint', {
@@ -28,7 +35,9 @@ async function logVisit() {
         'Content-Type': 'application/json',
         "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1xcnV4bGhyeG5peXpiaGtobXRjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgzMjgzMDIsImV4cCI6MjA4MzkwNDMwMn0.qPt-dN4Uj0d0pKU11AYy782XMuoXeJ7CFiVXmEyrJzA"
       },
-      body: JSON.stringify({})
+      body: JSON.stringify({ 
+        excludedIps: EXCLUDED_IPS 
+      })
     });
 
     if (!response.ok) {

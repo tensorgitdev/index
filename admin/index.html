@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+    <div class="container" id="loginContainer">
+        <!-- 로그인 폼 -->
+        <div id="loginForm">
+            <h1>🔐 Admin Login</h1>
+            <form id="authForm">
+                <div class="form-group">
+                    <label for="email">이메일</label>
+                    <input type="email" id="email" required placeholder="admin@example.com">
+                </div>
+                <div class="form-group">
+                    <label for="password">비밀번호</label>
+                    <input type="password" id="password" required placeholder="비밀번호 입력">
+                </div>
+                <button type="submit" id="loginBtn">로그인</button>
+            </form>
+            <div class="message" id="message"></div>
+        </div>
+
+        <!-- 관리자 패널 -->
+        <div class="admin-panel" id="adminPanel">
+            <div class="admin-header">
+                <h1>📊 Admin Panel</h1>
+                <button class="logout-btn" id="logoutBtn">로그아웃</button>
+            </div>
+
+            <!-- 탭 메뉴 -->
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="visitor">방문자 로그</button>
+                <button class="tab-btn" data-tab="guestbook">방명록</button>
+            </div>
+
+            <!-- 방문자 로그 탭 -->
+            <div class="tab-content active" id="visitorTab">
+                <div class="tab-header">
+                    <h2>📈 방문자 로그</h2>
+                    <button class="refresh-btn" id="refreshVisitor">🔄 새로고침</button>
+                </div>
+
+                <div class="stats">
+                    <div class="stat-card">
+                        <h3>총 방문자</h3>
+                        <p id="totalVisitors">-</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>모바일</h3>
+                        <p id="mobileVisitors">-</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>PC</h3>
+                        <p id="pcVisitors">-</p>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>날짜/시간</th>
+                                <th>IP</th>
+                                <th>User Agent</th>
+                                <th>디바이스</th>
+                                <th>국가</th>
+                            </tr>
+                        </thead>
+                        <tbody id="visitorBody">
+                            <tr>
+                                <td colspan="6" class="loading">로딩중...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 방명록 탭 -->
+            <div class="tab-content" id="guestbookTab">
+                <div class="tab-header">
+                    <h2>💬 방명록</h2>
+                    <button class="refresh-btn" id="refreshGuestbook">🔄 새로고침</button>
+                </div>
+
+                <div class="stats">
+                    <div class="stat-card">
+                        <h3>총 방명록</h3>
+                        <p id="totalGuestbook">-</p>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>작성일시</th>
+                                <th>IP</th>
+                                <th>메시지</th>
+                                <th>이모지</th>
+                                <th>국가</th>
+                                <th>User Agent</th>
+                            </tr>
+                        </thead>
+                        <tbody id="guestbookBody">
+                            <tr>
+                                <td colspan="7" class="loading">로딩중...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="admin.js"></script>
+</body>
+</html>
