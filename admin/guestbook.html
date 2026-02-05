@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ADMIN</title>
+<script src="inc/common.js"></script>
+</head>
+
+<body style="opacity:0;">
+
+    <div class="container" id="container">
+        <div class="d-flex justify-content-between align-items-center mb-5 px-3">
+            <div id="navigator">
+            </div>
+            <button class="btn btn-logout px-4" id="logoutBtn">Logout</button>
+        </div>
+
+        <div class="row g-4">
+
+            <div class="col-12 mt-4">
+                <div class="glass-panel text-center">
+                    <p class="text-uppercase small opacity-75">Total Visitors</p>
+                    <h3 class="display-6 fw-bold" id="totalVisitors">1,240</h3>
+                </div>
+            </div>
+    
+
+            <div class="col-12 mt-4">
+                <div class="glass-panel">
+                    <div id="admin-table"></div>
+                </div>
+            </div>
+
+        </div>
+</div>
+<script>
+document.addEventListener('supabaseReady', async function (e) {
+    const { sb, session } = e.detail;
+
+    async function loadVisitorLogs() {
+        try {
+            const { data, error } = await sb
+                .from('guestbook')
+                .select('*')
+                .order('gb_created_at', { ascending: false });
+
+            if (error) throw error;
+
+            const now = new Date();
+            const todayInt = parseInt(
+                now.getFullYear().toString() +
+                (now.getMonth() + 1).toString().padStart(2, '0') +
+                now.getDate().toString().padStart(2, '0')
+            );
+
+            console.log("data", data);
+
+            const total = data.length;
+            const mobile = data.filter(v => v.vl_device_type === 'mobile').length;
+            const pc = data.filter(v => v.vl_device_type === 'pc').length;
+            const today = data.filter(v => v.vl_date_int === todayInt).length;
+
+            let rowPopupFormatter = function(e, row, onRendered){
+                let data = row.getData(),
+                container = document.createElement("div"),
+                contents = "<strong style='font-size:1.2em;'>USER AGENT</strong>";
+                contents += `<div>${data.vl_user_agent}</div>`;
+
+                container.innerHTML = contents;
+
+                return container;
+            };
+
+            //create header popup contents
+            let headerPopupFormatter = function(e, column, onRendered){
+                let container = document.createElement("div");
+
+                let label = document.createElement("label");
+                label.innerHTML = "Filter Column:";
+                label.style.display = "block";
+                label.style.fontSize = ".7em";
+
+                let input = document.createElement("input");
+                input.placeholder = "Filter Column...";
+                input.value = column.getHeaderFilterValue() || "";
+
+                input.addEventListener("keyup", (e) => {
+                    column.setHeaderFilterValue(input.value);
+                });
+
+                container.appendChild(label);
+                container.appendChild(input);
+
+                return container;
+            }
+
+            //create dummy header filter to allow popup to filter
+            let emptyHeaderFilter = function(){
+                return document.createElement("div");;
+            }
+
+
+            // Tabulator 테이블 생성
+            const table = new Tabulator("#admin-table", {
+                data: data, // 초기 데이터를 여기서 설정
+                layout: "fitColumns",
+                placeholder: "데이터가 없습니다.",
+                rowClickPopup:rowPopupFormatter,
+                rowHeight:40, 
+                headerHeight: 40,
+                rowFormatter: function(row) {
+                    const rowData = row.getData();
+                    if (rowData.vl_date_int === todayInt) {
+                        row.getElement().classList.add("today-row");
+                    }
+                },
+                columns: [
+                    {
+                        title: "방문 시간",
+                        field: "gb_created_at",
+                        width: 180,
+                        headerHozAlign: "center",
+                        hozAlign:"center",
+                        formatter: function (cell) {
+                            return formatDate(cell.getValue());
+                        }
+                    },
+                    {
+                        title: "IP",
+                        field: "gb_ip",
+                        width: 180,
+                        headerHozAlign: "center",
+                        hozAlign:"center",
+                    },
+                    {
+                        title: "이모지",
+                        field: "gb_emoji",
+                        width: 100,
+                        headerHozAlign: "center",
+                        hozAlign:"center",
+                    },                    
+                    {
+                        title: "메세지",
+                        field: "gb_msg",
+                        widthGrow:true,
+                        headerHozAlign: "center",
+                        hozAlign:"center",
+                    },
+                ]
+            });
+
+            table.on("renderComplete", function () {
+                twemoji.parse(document.body);
+            });
+            
+            loadComplete();
+
+        } catch (error) {
+            console.error('Error loading visitor logs:', error);
+        }
+    }
+    loadVisitorLogs();
+
+});
+</script>
+
+</body>
+
+</html>

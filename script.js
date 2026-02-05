@@ -118,6 +118,9 @@ EMOJIS.forEach((emoji, index) => {
   emojiSelect.appendChild(option);
 });
 
+twemoji.parse(document.body);
+
+
 // ===============================
 // 이모지만 바로 전송
 // ===============================

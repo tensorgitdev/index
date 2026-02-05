@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ADMIN</title>
+<script src="inc/common.js"></script>
+</head>
+
+<body>
+
+<script>
+document.addEventListener('supabaseReady', async function (e) {
+    const { sb, session } = e.detail;
+    location.href="visitor-log.html";
+});
+</script>
+
+</body>
+
+</html>

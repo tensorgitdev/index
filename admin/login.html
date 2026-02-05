@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LOGIN</title>
+<script src="inc/common.js"></script>
+</head>
+<body style="opacity:0;">
+
+<div class="container d-flex justify-content-center align-items-center min-vh-100">
+    <div class="login-container" id="loginContainer">
+        <!-- 로그인 폼 -->
+        <div id="loginForm">
+            <form id="authForm">
+                <input type="hidden" value="tensorggacc@gmail.com" />
+                </div>
+                <div class="form-group">
+                    <input type="password" id="password" required placeholder="">
+                </div>
+                <button type="submit" id="loginBtn">LOGIN</button>
+            </form>
+            <div class="message" id="message"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+document.addEventListener('supabaseReady', async function (e) {
+    const { sb, session } = e.detail;
+    loadComplete();
+    authForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        //const email = document.getElementById('email').value;
+        const email = "tensorggacc@gmail.com";
+        const password = document.getElementById('password').value;
+
+        try {
+            const { data, error } = await sb.auth.signInWithPassword({
+                email, password
+            });
+
+            if (error) throw error;
+
+            // 로그인 성공 시 관리자 페이지로 이동
+            window.location.href = 'admin.html';
+        } catch (error) {
+            alert(error.message);
+        }
+    });
+});
+</script>
+    
+</body>
+</html>

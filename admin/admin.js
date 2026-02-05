@@ -16,28 +16,6 @@ const loginBtn = document.getElementById('loginBtn');
 const logoutBtn = document.getElementById('logoutBtn');
 const message = document.getElementById('message');
 
-// 탭 요소
-const tabBtns = document.querySelectorAll('.tab-btn');
-const tabContents = document.querySelectorAll('.tab-content');
-
-// 새로고침 버튼
-const refreshVisitor = document.getElementById('refreshVisitor');
-const refreshGuestbook = document.getElementById('refreshGuestbook');
-
-// 테이블 바디
-const visitorBody = document.getElementById('visitorBody');
-const guestbookBody = document.getElementById('guestbookBody');
-
-// 메시지 표시
-function showMessage(text, type = 'error') {
-    message.textContent = text;
-    message.className = `message ${type}`;
-    message.style.display = 'block';
-    setTimeout(() => {
-        message.style.display = 'none';
-    }, 5000);
-}
-
 // 날짜 포맷
 function formatDate(dateString) {
     const date = new Date(dateString);
@@ -50,176 +28,6 @@ function formatDate(dateString) {
     return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 }
 
-// User Agent 파싱 함수
-function parseUserAgent(ua) {
-    if (!ua || ua === 'unknown') return { browser: '-', os: '-', device: '-' };
-    
-    // 브라우저 감지
-    let browser = 'Unknown';
-    if (ua.includes('Edg/')) browser = 'Edge';
-    else if (ua.includes('Chrome/') && !ua.includes('Edg')) browser = 'Chrome';
-    else if (ua.includes('Safari/') && !ua.includes('Chrome')) browser = 'Safari';
-    else if (ua.includes('Firefox/')) browser = 'Firefox';
-    else if (ua.includes('Opera/') || ua.includes('OPR/')) browser = 'Opera';
-    
-    // OS 감지
-    let os = 'Unknown';
-    if (ua.includes('Windows NT 10.0')) os = 'Windows 10/11';
-    else if (ua.includes('Windows NT')) os = 'Windows';
-    else if (ua.includes('Mac OS X')) os = 'macOS';
-    else if (ua.includes('Android')) {
-        const match = ua.match(/Android (\d+)/);
-        os = match ? `Android ${match[1]}` : 'Android';
-    }
-    else if (ua.includes('iPhone') || ua.includes('iPad')) {
-        const match = ua.match(/OS (\d+)_(\d+)/);
-        os = match ? `iOS ${match[1]}` : 'iOS';
-    }
-    else if (ua.includes('Linux')) os = 'Linux';
-    
-    // 디바이스
-    let device = 'PC';
-    if (ua.includes('iPhone')) device = 'iPhone';
-    else if (ua.includes('iPad')) device = 'iPad';
-    else if (ua.includes('Android')) device = 'Android';
-    else if (ua.includes('Mobile')) device = 'Mobile';
-    
-    return { browser, os, device };
-}
-
-// 탭 전환
-tabBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-        const tabName = btn.dataset.tab;
-        
-        // 모든 탭 비활성화
-        tabBtns.forEach(b => b.classList.remove('active'));
-        tabContents.forEach(c => c.classList.remove('active'));
-        
-        // 선택된 탭 활성화
-        btn.classList.add('active');
-        document.getElementById(`${tabName}Tab`).classList.add('active');
-        
-        // 데이터 로드
-        if (tabName === 'visitor') {
-            loadVisitorLogs();
-        } else if (tabName === 'guestbook') {
-            loadGuestbook();
-        }
-    });
-});
-
-// 국가 코드를 국기 이모지로 변환
-function countryCodeToFlag(code) {
-    if (!code || code === '-' || code === 'unknown' || code === 'LOCAL') return code;
-    
-    const codePoints = code
-        .toUpperCase()
-        .split('')
-        .map(char => 127397 + char.charCodeAt());
-    return String.fromCodePoint(...codePoints);
-}
-
-// 방문자 로그 가져오기
-async function loadVisitorLogs() {
-    try {
-        const { data, error } = await sb
-            .from('visitor_log')
-            .select('*')
-            .order('vl_visited_at', { ascending: false });
-
-        if (error) throw error;
-
-        const now = new Date();
-        const todayInt = parseInt(
-            now.getFullYear().toString() +
-            (now.getMonth() + 1).toString().padStart(2, '0') +
-            now.getDate().toString().padStart(2, '0')
-        );
-
-        const total = data.length;
-        const mobile = data.filter(v => v.vl_device_type === 'mobile').length;
-        const pc = data.filter(v => v.vl_device_type === 'pc').length;
-        const today = data.filter(v => v.vl_date_int === todayInt).length;
-
-        document.getElementById('totalVisitors').textContent = total;
-        document.getElementById('mobileVisitors').textContent = mobile;
-        document.getElementById('pcVisitors').textContent = pc;
-        document.getElementById('todayVisitors').textContent = today;
-
-        if (data.length === 0) {
-            visitorBody.innerHTML = '<tr><td colspan="6" class="loading">데이터가 없습니다.</td></tr>';
-            return;
-        }
-
-        visitorBody.innerHTML = data.map(log => {
-            const parsed = parseUserAgent(log.vl_user_agent);
-            const flag = countryCodeToFlag(log.vl_country_code); // 여기 추가됐나 확인
-            
-            return `
-                <tr>
-                    <td>${formatDate(log.vl_visited_at)}</td>
-                    <td>${log.vl_ip}</td>
-                    <td>
-                        <div><strong>${parsed.browser}</strong> on ${parsed.os}</div>
-                        <div style="font-size: 11px; color: #999;" title="${log.vl_user_agent}">${parsed.device}</div>
-                    </td>
-                    <td><span class="device-badge device-${log.vl_device_type}">${log.vl_device_type.toUpperCase()}</span></td>
-                    <td style="font-size: 1.5em;" title="${log.vl_country_code}">${flag}</td>
-                </tr>
-            `;
-        }).join('');
-        twemoji.parse(document.body);
-
-
-    } catch (error) {
-        console.error('Error loading visitor logs:', error);
-        visitorBody.innerHTML = '<tr><td colspan="6" class="loading" style="color: #c33;">데이터 로드 실패</td></tr>';
-    }
-}
-// 방명록 가져오기
-// 방명록 가져오기
-async function loadGuestbook() {
-    try {
-        const { data, error } = await sb
-            .from('guestbook')
-            .select('*')
-            .order('gb_id', { ascending: false }); // 일단 ID 역순으로
-
-        if (error) {
-            console.error('Error:', error);
-            throw error;
-        }
-
-        console.log('Guestbook data:', data); // 데이터 확인
-
-        // 통계
-        document.getElementById('totalGuestbook').textContent = data.length;
-
-        // 테이블 생성
-        if (data.length === 0) {
-            guestbookBody.innerHTML = '<tr><td colspan="7" class="loading">데이터가 없습니다.</td></tr>';
-            return;
-        }
-
-        guestbookBody.innerHTML = data.map(gb => `
-            <tr>
-                <td>${gb.gb_id}</td>
-                <td>${gb.created_at ? formatDate(gb.created_at) : '-'}</td>
-                <td>${gb.gb_ip || '-'}</td>
-                <td style="max-width: 300px;">${gb.gb_message || '-'}</td>
-                <td class="emoji-display">${gb.gb_emoji || '-'}</td>
-                <td>${gb.gb_country_code || '-'}</td>
-                <td style="max-width: 400px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${gb.gb_user_agent || ''}">${gb.gb_user_agent || '-'}</td>
-            </tr>
-        `).join('');
-        twemoji.parse(document.body);
-
-    } catch (error) {
-        console.error('Error loading guestbook:', error);
-        guestbookBody.innerHTML = '<tr><td colspan="7" class="loading" style="color: #c33;">데이터 로드 실패: ' + error.message + '</td></tr>';
-    }
-}
 
 // 세션 확인
 async function checkSession() {
@@ -227,6 +35,16 @@ async function checkSession() {
     if (session) {
         showAdminPanel();
     }
+}
+
+// 메시지 표시
+function showMessage(text, type = 'error') {
+    message.textContent = text;
+    message.className = `message ${type}`;
+    message.style.display = 'block';
+    setTimeout(() => {
+        message.style.display = 'none';
+    }, 5000);
 }
 
 // 로그인
@@ -270,18 +88,6 @@ logoutBtn.addEventListener('click', async () => {
     }
 });
 
-// 새로고침 버튼
-refreshVisitor.addEventListener('click', loadVisitorLogs);
-refreshGuestbook.addEventListener('click', loadGuestbook);
-
-// 관리자 패널 표시
-function showAdminPanel() {
-    loginForm.style.display = 'none';
-    adminPanel.style.display = 'block';
-    loginContainer.classList.add('wide');
-    loadVisitorLogs(); // 기본으로 방문자 로그 로드
-}
-
 // 로그인 폼 표시
 function showLoginForm() {
     loginForm.style.display = 'block';
@@ -297,8 +103,13 @@ checkSession();
 // 인증 상태 변경 감지
 sb.auth.onAuthStateChange((event, session) => {
     if (event === 'SIGNED_IN' && session) {
-        showAdminPanel();
+        alert("세션 있음");
     } else if (event === 'SIGNED_OUT') {
+        alert("세션 없음")
         showLoginForm();
     }
 });
+
+function showAdminPanel(){
+    alert("관리자 보기");
+}
