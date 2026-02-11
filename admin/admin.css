@@ -160,3 +160,9 @@ img.emoji {
 /* 테이블 텍스트 색상 조정 */
 .table { color: white; }
 .table thead { border-bottom: 2px solid rgba(255,255,255,0.2); }
+
+.apexcharts-tooltip {}
+.apexcharts-tooltip.apexcharts-theme-dark,
+.apexcharts-tooltip.apexcharts-theme-dark .apexcharts-tooltip-title {background: rgba(255,255,255,0.1) !important; backdrop-filter: blur(15px) !important; -webkit-backdrop-filter: blur(15px) !important;}
+.apexcharts-tooltip.apexcharts-theme-dark .apexcharts-tooltip-title {border-color: rgba(255,255,255,0.2) !important;}
+.apexcharts-tooltip {backdrop-filter: blur(15px) !important; -webkit-backdrop-filter: blur(15px) !important;}

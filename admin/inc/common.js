@@ -135,6 +135,8 @@ document.addEventListener('DOMContentLoaded', async function () {
     if (session) {
         console.log('✅ 로그인됨:', session.user.email);
         // window.location.href = '../admin/admin.html';
+    }else {
+        console.log("세션 없음");
     }
 
     window.logout = logout;
