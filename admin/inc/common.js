@@ -89,9 +89,8 @@ function loadPlugins() {
 }
 
 document.addEventListener('DOMContentLoaded', async function () {
-    
-    let sb;
-    
+
+    // ── 1. 플러그인 로드 ──────────────────────────────────────
     try {
         await loadPlugins();
         console.log("1. 플러그인 로드 완료");
@@ -99,66 +98,56 @@ document.addEventListener('DOMContentLoaded', async function () {
         console.error("플러그인 로드 실패:", error);
         return;
     }
-    
-    // supabase가 정말 로드됐는지 최종 확인
+
+    // ── 2. Supabase 로드 확인 ─────────────────────────────────
     if (typeof supabase === 'undefined') {
         console.error('supabase가 여전히 undefined입니다!');
         return;
     }
-    
-    console.log("2. supabase 확인됨:", typeof supabase);
-    
+    console.log("2. supabase 확인됨");
+
+    // ── 3. Supabase 클라이언트 생성 ───────────────────────────
     const SUPABASE_URL = 'https://mqruxlhrxniyzbhkhmtc.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1xcnV4bGhyeG5peXpiaGtobXRjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgzMjgzMDIsImV4cCI6MjA4MzkwNDMwMn0.qPt-dN4Uj0d0pKU11AYy782XMuoXeJ7CFiVXmEyrJzA';
-    
-    const { createClient } = supabase;
-    sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    
-    window.sb = sb;
 
+    const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    window.sb = sb;
     console.log("3. Supabase 클라이언트 생성 완료");
-    
-    // 세션 확인 함수들
-    async function getSession() {
-        const { data: { session } } = await sb.auth.getSession();
-        return session;
-    }
-    
-    async function requireAuth() {
-        const session = await getSession();
-        const isLoginPage = window.location.pathname.includes('login.html');
-        return session;
-    }
-    
-    // 세션 확인
-    const session = await requireAuth();
+
+    // ── 4. 세션 확인 및 인증 처리 ─────────────────────────────
+    const { data: { session } } = await sb.auth.getSession();
+    const isLoginPage = window.location.pathname.includes('login.html');
+
     if (session) {
         console.log('✅ 로그인됨:', session.user.email);
-        // window.location.href = '../admin/admin.html';
-    }else {
+    } else {
         console.log("세션 없음");
+        if (!isLoginPage) {
+            window.location.href = '../admin/login.html';
+            return; // 리다이렉트 후 아래 코드 실행 방지
+        }
     }
 
-    window.logout = logout;
-
+    // ── 5. 로그아웃 ───────────────────────────────────────────
     async function logout() {
         await sb.auth.signOut();
         window.location.href = '../admin/login.html';
     }
 
-    // 로그아웃 버튼
+    window.logout = logout;
+
     const logoutBtn = document.getElementById("logoutBtn");
     if (logoutBtn) {
         logoutBtn.addEventListener('click', logout);
     }
-    
-    // Supabase 준비 완료 이벤트 발생
-    const supabaseReadyEvent = new CustomEvent('supabaseReady', { 
-        detail: { sb, session } 
-    });
-    document.dispatchEvent(supabaseReadyEvent);
+
+    // ── 6. supabaseReady 이벤트 발생 ──────────────────────────
+    document.dispatchEvent(new CustomEvent('supabaseReady', {
+        detail: { sb, session }
+    }));
     console.log("4. supabaseReady 이벤트 발생");
 
+    // ── 7. 네비게이터 렌더링 ──────────────────────────────────
     $("#navigator").html(`
         <a href="visitor-log.html">방문자 로그</a>
         <a href="guestbook.html">방문록</a>
