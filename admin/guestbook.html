@@ -168,21 +168,19 @@ document.addEventListener('supabaseReady', async function (e) {
                             el.innerHTML = "생성중..."
 
                             try {
-                            const res = await fetch(
-                                "https://mqruxlhrxniyzbhkhmtc.supabase.co/functions/v1/create-card",
-                                {
-                                method: "POST",
-                                headers: {
-                                    "Content-Type": "application/json",
-                                },
-                                body: JSON.stringify({
-                                    id: row.gb_id,
-                                    message: row.gb_message,
-                                    emoji: row.gb_emoji,
-                                }),
-                                }
-                            )
-
+                            const res = await fetch("https://mqruxlhrxniyzbhkhmtc.supabase.co/functions/v1/create-card", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    "apikey": SUPABASE_ANON_KEY,
+    "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
+  },
+  body: JSON.stringify({
+    id: row.gb_id,
+    message: row.gb_message,
+    emoji: row.gb_emoji
+  })
+})
                             if (!res.ok) throw new Error()
 
                             el.innerHTML = "완료"
