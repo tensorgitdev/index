@@ -199,7 +199,18 @@
                                         console.error(err)
                                     }
                                 }
-                            }
+                            },
+                            {
+                                title: "링크",
+                                field: "gb_link",
+                                widthGrow: true,
+                                headerHozAlign: "center",
+                                hozAlign: "left",
+                                formatter: function (cell) {
+                                    const data = cell.getRow().getData();
+                                    return "이동";
+                                },
+                            },
                         ]
                     });
 

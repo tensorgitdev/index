@@ -60,7 +60,7 @@ const svg = await satori(
               flexDirection: "column",
               alignItems: "center",
               backgroundColor: "#ffffff",
-              borderRadius: "60px",
+              borderRadius: "40px",
               padding: "80px 100px",
               position: "relative",
             },
@@ -94,9 +94,9 @@ const svg = await satori(
                       props: {
                         children: safeMessage,
                         style: {
-                          fontSize: "40px",
+                          fontSize: "36px",
                           fontWeight: 400, // Regular 폰트 사용
-                          lineHeight: "1.2",
+                          lineHeight: "1.3",
                           color: "#374151",
                           textAlign: "center",
                           wordBreak: "keep-all",
