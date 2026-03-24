@@ -208,8 +208,8 @@
                                 hozAlign: "left",
                                 width: 120,
                                 formatter: function (cell) {
-                                    const data = cell.getRow().getData();
-                                    return "이동";
+                                    const id = cell.getRow().getData().gb_id;
+                                    return `<button class='btn btn-sm btn-primary' onclick='window.open("https://png-converter.onrender.com/view-card?id=${id}")'>이동</button>`;
                                 },
                             },
                         ]
