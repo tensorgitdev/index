@@ -148,6 +148,51 @@ document.addEventListener('supabaseReady', async function (e) {
                         headerHozAlign: "center",
                         hozAlign:"left",
                     },
+                    {
+                        title: "이미지",
+                        hozAlign: "center",
+                        width: 120,
+                        formatter: function(cell){
+                            const data = cell.getRow().getData()
+                            return data.gb_card_image_url 
+                            ? "완료"
+                            : "<button class='btn btn-sm btn-primary'>생성</button>"
+                        },
+                        cellClick: async function(e, cell){
+                            const row = cell.getRow().getData()
+                            const el = cell.getElement()
+
+                            // 이미 있으면 막기
+                            if (row.gb_card_image_url) return
+
+                            el.innerHTML = "생성중..."
+
+                            try {
+                            const res = await fetch(
+                                "https://mqruxlhrxniyzbhkhmtc.supabase.co/functions/v1/create-card",
+                                {
+                                method: "POST",
+                                headers: {
+                                    "Content-Type": "application/json",
+                                },
+                                body: JSON.stringify({
+                                    id: row.gb_id,
+                                    message: row.gb_message,
+                                    emoji: row.gb_emoji,
+                                }),
+                                }
+                            )
+
+                            if (!res.ok) throw new Error()
+
+                            el.innerHTML = "완료"
+
+                            } catch (err) {
+                            el.innerHTML = "실패"
+                            console.error(err)
+                            }
+                        }
+                        }
                 ]
             });
 
