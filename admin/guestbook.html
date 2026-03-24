@@ -2,10 +2,10 @@
 <html lang="ko">
 
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ADMIN</title>
-<script src="inc/common.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ADMIN</title>
+    <script src="inc/common.js"></script>
 </head>
 
 <body style="opacity:0;">
@@ -25,7 +25,7 @@
                     <h3 class="display-6 fw-bold" id="totalVisitors">1,240</h3>
                 </div>
             </div>
-    
+
 
             <div class="col-12 mt-4">
                 <div class="glass-panel">
@@ -34,184 +34,189 @@
             </div>
 
         </div>
-</div>
-<script>
-document.addEventListener('supabaseReady', async function (e) {
-    const { sb, session } = e.detail;
-    const SUPABASE_URL = 'https://mqruxlhrxniyzbhkhmtc.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1xcnV4bGhyeG5peXpiaGtobXRjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgzMjgzMDIsImV4cCI6MjA4MzkwNDMwMn0.qPt-dN4Uj0d0pKU11AYy782XMuoXeJ7CFiVXmEyrJzA';
+    </div>
+    <script>
+        document.addEventListener('supabaseReady', async function (e) {
+            const { sb, session } = e.detail;
+            const SUPABASE_URL = 'https://mqruxlhrxniyzbhkhmtc.supabase.co';
+            const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1xcnV4bGhyeG5peXpiaGtobXRjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgzMjgzMDIsImV4cCI6MjA4MzkwNDMwMn0.qPt-dN4Uj0d0pKU11AYy782XMuoXeJ7CFiVXmEyrJzA';
 
-    async function loadVisitorLogs() {
-        try {
-            const { data, error } = await sb
-                .from('guestbook')
-                .select('*')
-                .order('gb_created_at', { ascending: false });
+            async function loadVisitorLogs() {
+                try {
+                    const { data, error } = await sb
+                        .from('guestbook')
+                        .select('*')
+                        .order('gb_created_at', { ascending: false });
 
-            if (error) throw error;
+                    if (error) throw error;
 
-            const now = new Date();
-            const todayInt = parseInt(
-                now.getFullYear().toString() +
-                (now.getMonth() + 1).toString().padStart(2, '0') +
-                now.getDate().toString().padStart(2, '0')
-            );
+                    const now = new Date();
+                    const todayInt = parseInt(
+                        now.getFullYear().toString() +
+                        (now.getMonth() + 1).toString().padStart(2, '0') +
+                        now.getDate().toString().padStart(2, '0')
+                    );
 
-            console.log("data", data);
+                    console.log("data", data);
 
-            const total = data.length;
-            const mobile = data.filter(v => v.vl_device_type === 'mobile').length;
-            const pc = data.filter(v => v.vl_device_type === 'pc').length;
-            const today = data.filter(v => v.vl_date_int === todayInt).length;
+                    const total = data.length;
+                    const mobile = data.filter(v => v.vl_device_type === 'mobile').length;
+                    const pc = data.filter(v => v.vl_device_type === 'pc').length;
+                    const today = data.filter(v => v.vl_date_int === todayInt).length;
 
-            let rowPopupFormatter = function(e, row, onRendered){
-                let data = row.getData(),
-                container = document.createElement("div"),
-                contents = "<strong style='font-size:1.2em;'>USER AGENT</strong>";
-                contents += `<div>${data.vl_user_agent}</div>`;
+                    let rowPopupFormatter = function (e, row, onRendered) {
+                        let data = row.getData(),
+                            container = document.createElement("div"),
+                            contents = "<strong style='font-size:1.2em;'>USER AGENT</strong>";
+                        contents += `<div>${data.vl_user_agent}</div>`;
 
-                container.innerHTML = contents;
+                        container.innerHTML = contents;
 
-                return container;
-            };
+                        return container;
+                    };
 
-            //create header popup contents
-            let headerPopupFormatter = function(e, column, onRendered){
-                let container = document.createElement("div");
+                    //create header popup contents
+                    let headerPopupFormatter = function (e, column, onRendered) {
+                        let container = document.createElement("div");
 
-                let label = document.createElement("label");
-                label.innerHTML = "Filter Column:";
-                label.style.display = "block";
-                label.style.fontSize = ".7em";
+                        let label = document.createElement("label");
+                        label.innerHTML = "Filter Column:";
+                        label.style.display = "block";
+                        label.style.fontSize = ".7em";
 
-                let input = document.createElement("input");
-                input.placeholder = "Filter Column...";
-                input.value = column.getHeaderFilterValue() || "";
+                        let input = document.createElement("input");
+                        input.placeholder = "Filter Column...";
+                        input.value = column.getHeaderFilterValue() || "";
 
-                input.addEventListener("keyup", (e) => {
-                    column.setHeaderFilterValue(input.value);
-                });
+                        input.addEventListener("keyup", (e) => {
+                            column.setHeaderFilterValue(input.value);
+                        });
 
-                container.appendChild(label);
-                container.appendChild(input);
+                        container.appendChild(label);
+                        container.appendChild(input);
 
-                return container;
-            }
-
-            //create dummy header filter to allow popup to filter
-            let emptyHeaderFilter = function(){
-                return document.createElement("div");;
-            }
-
-
-            // Tabulator 테이블 생성
-            const table = new Tabulator("#admin-table", {
-                data: data, // 초기 데이터를 여기서 설정
-                layout: "fitColumns",
-                placeholder: "데이터가 없습니다.",
-                rowClickPopup:rowPopupFormatter,
-                rowHeight:40, 
-                headerHeight: 40,
-                rowFormatter: function(row) {
-                    const rowData = row.getData();
-                    if (rowData.vl_date_int === todayInt) {
-                        row.getElement().classList.add("today-row");
+                        return container;
                     }
-                },
-                columns: [
-                    {
-                        title: "방문 시간",
-                        field: "gb_created_at",
-                        width: 180,
-                        headerHozAlign: "center",
-                        hozAlign:"center",
-                        formatter: function (cell) {
-                            return formatDate(cell.getValue());
-                        }
-                    },
-                    {
-                        title: "IP",
-                        field: "gb_ip",
-                        width: 180,
-                        headerHozAlign: "center",
-                        hozAlign:"center",
-                    },
-                    {
-                        title: "이모지",
-                        field: "gb_emoji",
-                        width: 100,
-                        headerHozAlign: "center",
-                        hozAlign:"center",
-                    },                    
-                    {
-                        title: "메세지",
-                        field: "gb_message",
-                        widthGrow:true,
-                        headerHozAlign: "center",
-                        hozAlign:"left",
-                    },
-                    {
-                        title: "이미지",
-                        hozAlign: "center",
-                        width: 120,
-                        formatter: function(cell){
-                            const data = cell.getRow().getData()
-                            return data.gb_card_image_url 
-                            ? "완료"
-                            : "<button class='btn btn-sm btn-primary'>생성</button>"
-                        },
-                        cellClick: async function(e, cell){
-                            const row = cell.getRow().getData()
-                            const el = cell.getElement()
 
-                            // 이미 있으면 막기
-                            if (row.gb_card_image_url) return
+                    //create dummy header filter to allow popup to filter
+                    let emptyHeaderFilter = function () {
+                        return document.createElement("div");;
+                    }
 
-                            el.innerHTML = "생성중..."
 
-                            try {
-                                const res = await fetch("https://mqruxlhrxniyzbhkhmtc.supabase.co/functions/v1/create-card", {
-                                method: "POST",
-                                headers: {
-                                    "Content-Type": "application/json",
-                                    "apikey": SUPABASE_ANON_KEY,
-                                    "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
-                                },
-                                body: JSON.stringify({
-                                    id: row.gb_id,
-                                    message: row.gb_message,
-                                    emoji: row.gb_emoji
-                                })
-                                })
-
-                                const text = await res.text()
-                                console.log("응답:", text)
-
-                            el.innerHTML = "완료"
-
-                            } catch (err) {
-                            el.innerHTML = "실패"
-                            console.error(err)
+                    // Tabulator 테이블 생성
+                    const table = new Tabulator("#admin-table", {
+                        data: data, // 초기 데이터를 여기서 설정
+                        layout: "fitColumns",
+                        placeholder: "데이터가 없습니다.",
+                        rowClickPopup: rowPopupFormatter,
+                        rowHeight: 40,
+                        headerHeight: 40,
+                        rowFormatter: function (row) {
+                            const rowData = row.getData();
+                            if (rowData.vl_date_int === todayInt) {
+                                row.getElement().classList.add("today-row");
                             }
-                        }
-                        }
-                ]
-            });
+                        },
+                        columns: [
+                            {
+                                title: "방문 시간",
+                                field: "gb_created_at",
+                                width: 180,
+                                headerHozAlign: "center",
+                                hozAlign: "center",
+                                formatter: function (cell) {
+                                    return formatDate(cell.getValue());
+                                }
+                            },
+                            {
+                                title: "IP",
+                                field: "gb_ip",
+                                width: 180,
+                                headerHozAlign: "center",
+                                hozAlign: "center",
+                            },
+                            {
+                                title: "이모지",
+                                field: "gb_emoji",
+                                width: 100,
+                                headerHozAlign: "center",
+                                hozAlign: "center",
+                            },
+                            {
+                                title: "메세지",
+                                field: "gb_message",
+                                widthGrow: true,
+                                headerHozAlign: "center",
+                                hozAlign: "left",
+                            },
+                            {
+                                title: "이미지",
+                                hozAlign: "center",
+                                width: 120,
+                                formatter: function (cell) {
+                                    const data = cell.getRow().getData()
+                                    return data.gb_card_image_url
+                                        ? "완료"
+                                        : "<button class='btn btn-sm btn-primary'>생성</button>"
+                                },
+                                cellClick: async function (e, cell) {
+                                    const row = cell.getRow().getData()
+                                    const el = cell.getElement()
 
-            table.on("renderComplete", function () {
-                twemoji.parse(document.body);
-            });
-            
-            loadComplete();
+                                    if (row.gb_card_image_url) return
 
-        } catch (error) {
-            console.error('Error loading visitor logs:', error);
-        }
-    }
-    loadVisitorLogs();
+                                    el.innerHTML = "생성중..."
 
-});
-</script>
+                                    try {
+                                        // 1️⃣ Edge Function 호출 → SVG URL 반환
+                                        const res = await fetch("https://mqruxlhrxniyzbhkhmtc.supabase.co/functions/v1/create-card", {
+                                            method: "POST",
+                                            headers: {
+                                                "Content-Type": "application/json",
+                                                "apikey": SUPABASE_ANON_KEY,
+                                                "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
+                                            },
+                                            body: JSON.stringify({
+                                                id: row.gb_id,
+                                                message: row.gb_message,
+                                                emoji: row.gb_emoji
+                                            })
+                                        })
+                                        const { url: svgUrl } = await res.json()
+
+                                        // 2️⃣ Render 서버 호출 → PNG 변환
+                                        const pngRes = await fetch("https://png-converter.onrender.com/convert", {
+                                            method: "POST",
+                                            headers: { "Content-Type": "application/json" },
+                                            body: JSON.stringify({ id: row.gb_id, svgUrl })
+                                        })
+                                        const { url: pngUrl } = await pngRes.json()
+
+                                        el.innerHTML = "완료"
+                                    } catch (err) {
+                                        el.innerHTML = "실패"
+                                        console.error(err)
+                                    }
+                                }
+                            }
+                        ]
+                    });
+
+                    table.on("renderComplete", function () {
+                        twemoji.parse(document.body);
+                    });
+
+                    loadComplete();
+
+                } catch (error) {
+                    console.error('Error loading visitor logs:', error);
+                }
+            }
+            loadVisitorLogs();
+
+        });
+    </script>
 
 </body>
 
