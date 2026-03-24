@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>card</title>
+
+  <!-- OG 기본값 (JS에서 덮어씀) -->
+  <meta property="og:title" content="guestbook card" />
+  <meta property="og:image" content="" />
+</head>
+
+<body style="margin:0; display:flex; justify-content:center; align-items:center; min-height:100vh; background:#f3f4f6;">
+
+  <div id="app" style="text-align:center;">
+    <div id="loading">loading...</div>
+  </div>
+
+  <script>
+    const SUPABASE_URL = 'https://mqruxlhrxniyzbhkhmtc.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1xcnV4bGhyeG5peXpiaGtobXRjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgzMjgzMDIsImV4cCI6MjA4MzkwNDMwMn0.qPt-dN4Uj0d0pKU11AYy782XMuoXeJ7CFiVXmEyrJzA';
+
+
+    // 👉 URL에서 id 가져오기
+    const params = new URLSearchParams(window.location.search)
+    const id = params.get("id")
+
+    const app = document.getElementById("app")
+
+    if (!id) {
+      app.innerHTML = "<div>invalid id</div>"
+    } else {
+      fetch(
+        `${SUPABASE_URL}/rest/v1/guestbook?gb_id=eq.${id}&select=gb_card_image_url`,
+        {
+          headers: {
+            apikey: SUPABASE_ANON_KEY,
+            Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+          },
+        }
+      )
+      .then(res => res.json())
+      .then(data => {
+        const imageUrl = data?.[0]?.gb_card_image_url
+
+        if (!imageUrl) {
+          app.innerHTML = "<div>not found</div>"
+          return
+        }
+
+        // 🔥 이미지 렌더
+        app.innerHTML = `
+          <img src="${imageUrl}" 
+            style="
+              width:100%;
+              max-width:600px;
+              border-radius:20px;
+              box-shadow:0 10px 30px rgba(0,0,0,0.1);
+            "
+          />
+          <div style="margin-top:20px;">
+            <button onclick="copyLink()">copy link</button>
+            <a href="${imageUrl}" download style="margin-left:10px;">download</a>
+          </div>
+        `
+
+        // 🔥 OG 태그 업데이트 (주의: 일부 SNS는 JS 무시함)
+        document.querySelector('meta[property="og:image"]').setAttribute("content", imageUrl)
+      })
+      .catch(err => {
+        app.innerHTML = "<div>error</div>"
+        console.error(err)
+      })
+    }
+
+    function copyLink() {
+      navigator.clipboard.writeText(window.location.href)
+      alert("copied!")
+    }
+  </script>
+
+</body>
+</html>
