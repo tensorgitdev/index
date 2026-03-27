@@ -22,6 +22,7 @@
             border-radius: 10px;
             margin: 7px 0px 7px 0px;
             background: rgba(255, 255, 255, 0.1) !important;
+            position: relative;
         }
 
         .has-msg img {
@@ -35,6 +36,8 @@
         .tabulator-tableholder {
             text-align: center;
         }
+
+        .btn-row-delete {position: absolute; right: 15px; top: 15px;}
     </style>
 </head>
 
@@ -73,9 +76,9 @@
 
             // 카드 생성 함수
             window.generateCard = async function (id, message, emoji) {
-                console.log("gb_id",id);
-                console.log("gb_message",message);
-                console.log("gb_emoji",emoji);
+                console.log("gb_id", id);
+                console.log("gb_message", message);
+                console.log("gb_emoji", emoji);
                 const btn = document.querySelector(`[data-gen-id="${id}"]`);
                 btn.disabled = true;
                 btn.innerText = "생성중...";
@@ -142,7 +145,20 @@
                 }
             }
 
+            window.deleteLog = async function (gb_id) {
+                if (!confirm("삭제하시겠습니까?")) return;
 
+                const { error } = await sb
+                    .from('guestbook')
+                    .delete()
+                    .eq('gb_id', Number(gb_id));
+
+                if (error) {
+                    console.error('삭제 실패:', error);
+                } else {
+                    loadVisitorLogs();
+                }
+            }
 
             async function loadVisitorLogs() {
                 try {
@@ -176,12 +192,14 @@
                                 itemCont += `<div class="gb-item"><p>${formatDate(data.gb_created_at)} (${data.gb_id})</p>
                                     <p>${data.gb_emoji}</p>`;
                                 if (!data.gb_card_image_url?.trim()) { // 카드 X
-                                    itemCont += `${data.gb_message}
+                                    itemCont += `
+                                        <button onclick="deleteLog(${data.gb_id});" class="btn-row-delete">게시글 삭제</button>
+                                        ${data.gb_message}
                                         <p><button class='btn btn-sm btn-primary' data-gen-id="${data.gb_id}" onclick="generateCard(${data.gb_id}, \`${data.gb_message}\`, \`${data.gb_emoji}\`)">이미지 생성</button></p>
                                     `;
                                 } else { // 카드 O
                                     const cardUrl = `https://png-converter.onrender.com/view-card?id=${data.gb_id}`;
-                                    itemCont += `<div class="img-wrapper" onclick=""><img src="${data.gb_card_image_url}" onclick='window.open("${cardUrl}")' /></div>`;
+                                    itemCont += `<div class="img-wrapper" onclick=""><img src="${data.gb_card_image_url}?v=${Date.now()}" onclick='window.open("${cardUrl}")' /></div>`;
 
                                     if (!data.gb_answer_url?.trim()) {
                                         itemCont += `<div>
