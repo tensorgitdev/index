@@ -173,7 +173,7 @@
                                 itemCont += `<div class="gb-item">${data.gb_emoji}</div>`;
                             } else {
                                 row.getElement().classList.add("has-msg");
-                                itemCont += `<div class="gb-item"><p>${formatDate(data.gb_created_at)}</p>
+                                itemCont += `<div class="gb-item"><p>${formatDate(data.gb_created_at)} (${data.gb_id})</p>
                                     <p>${data.gb_emoji}</p>`;
                                 if (!data.gb_card_image_url?.trim()) { // 카드 X
                                     itemCont += `${data.gb_message}
