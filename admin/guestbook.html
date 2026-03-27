@@ -104,6 +104,20 @@
                 }
             }
 
+            // 답변 카드 삭제 함수
+            window.deleteCardImg = async function (gb_id) {
+                const { error } = await sb
+                    .from('guestbook')
+                    .update({ gb_card_image_url: null })
+                    .eq('gb_id', Number(gb_id));
+
+                if (error) {
+                    console.error('삭제 실패:', error);
+                } else {
+                    loadVisitorLogs();
+                }
+            }
+
             // 답변 url 업데이트 함수
             window.submitAnswer = async function (id) {
                 const input = document.getElementById(`answer-input-${id}`);
@@ -165,15 +179,19 @@
                                 } else { // 카드 O
                                     const cardUrl = `https://png-converter.onrender.com/view-card?id=${data.gb_id}`;
                                     itemCont += `<div class="img-wrapper" onclick=""><img src="${data.gb_card_image_url}" onclick='window.open("${cardUrl}")' /></div>`;
+
+                                    if (!data.gb_answer_url?.trim()) {
+                                        itemCont += `<div>
+                                            <button class='btn btn-sm btn-danger' onclick="deleteCardImg('${data.gb_id}');">이미지 삭제</button>
+                                            <input type="text" id="answer-input-${data.gb_id}" />
+                                            <button class='btn btn-sm btn-primary' onclick="submitAnswer('${data.gb_id}')">입력</button>
+                                        </div>`;
+                                    } else {
+                                        itemCont += `<a href="${data.gb_answer_url}" target="_blank" class="btn btn-sm btn-outline-light">답장 보기</a>`;
+                                    }
+
                                 }
-                                if (!data.gb_answer_url?.trim()) {
-                                    itemCont += `<div>
-                                        <input type="text" id="answer-input-${data.gb_id}" />
-                                        <button class='btn btn-sm btn-primary' onclick="submitAnswer('${data.gb_id}')">입력</button>
-                                    </div>`;
-                                } else {
-                                    itemCont += `<a href="${data.gb_answer_url}" target="_blank" class="btn btn-sm btn-outline-light">답장 보기</a>`;
-                                }
+
                                 itemCont += `</div>`;
                             }
                             element.innerHTML = itemCont;
