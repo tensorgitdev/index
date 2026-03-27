@@ -6,6 +6,36 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ADMIN</title>
     <script src="inc/common.js"></script>
+    <style>
+        .no-msg {
+            display: inline-block;
+            padding: 7px 5px;
+        }
+
+        .has-msg {
+            width: 500px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 20px;
+            word-break: break-all;
+            overflow-wrap: break-word;
+            white-space: normal;
+            border-radius: 10px;
+            margin: 7px 0px 7px 0px;
+            background: rgba(255, 255, 255, 0.1) !important;
+        }
+
+        .has-msg img {
+            width: 100%;
+        }
+
+        .tabulator .tabulator-tableholder .tabulator-table .tabulator-row.no-msg {
+            border: none;
+        }
+
+        .tabulator-tableholder {
+            text-align: center;
+        }
+    </style>
 </head>
 
 <body style="opacity:0;">
@@ -41,6 +71,62 @@
             const SUPABASE_URL = 'https://mqruxlhrxniyzbhkhmtc.supabase.co';
             const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1xcnV4bGhyeG5peXpiaGtobXRjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgzMjgzMDIsImV4cCI6MjA4MzkwNDMwMn0.qPt-dN4Uj0d0pKU11AYy782XMuoXeJ7CFiVXmEyrJzA';
 
+            // 카드 생성 함수
+            window.generateCard = async function (gb_id, gb_message, gb_emoji) {
+                const btn = document.querySelector(`[data-gen-id="${gb_id}"]`);
+                btn.disabled = true;
+                btn.innerText = "생성중...";
+
+                try {
+                    const res = await fetch("https://mqruxlhrxniyzbhkhmtc.supabase.co/functions/v1/create-card", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "apikey": SUPABASE_ANON_KEY,
+                            "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
+                        },
+                        body: JSON.stringify({ id: gb_id, gb_message, gb_emoji })
+                    });
+                    const { url: svgUrl } = await res.json();
+
+                    const pngRes = await fetch("https://png-converter.onrender.com/convert", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ id: gb_id, svgUrl })
+                    });
+                    const { url: pngUrl } = await pngRes.json();
+
+                    btn.innerText = "완료";
+                    loadVisitorLogs();
+                } catch (err) {
+                    btn.innerText = "실패";
+                    console.error(err);
+                }
+            }
+
+            // 답변 url 업데이트 함수
+            window.submitAnswer = async function (id) {
+                const input = document.getElementById(`answer-input-${id}`);
+                const value = input.value.trim();
+                if (!value) return;
+                console.log("gb_id", id);
+                console.log("value", value);
+
+                const { error } = await sb
+                    .from('guestbook')
+                    .update({ gb_answer_url: value })
+                    .eq('gb_id', Number(id))
+
+                if (error) {
+                    console.error('업데이트 실패:', error);
+                } else {
+                    alert('저장됐습니다.');
+                    loadVisitorLogs(); // 테이블 새로고침
+                }
+            }
+
+
+
             async function loadVisitorLogs() {
                 try {
                     const { data, error } = await sb
@@ -50,169 +136,49 @@
 
                     if (error) throw error;
 
-                    const now = new Date();
-                    const todayInt = parseInt(
-                        now.getFullYear().toString() +
-                        (now.getMonth() + 1).toString().padStart(2, '0') +
-                        now.getDate().toString().padStart(2, '0')
-                    );
-
-                    console.log("data", data);
-
-                    const total = data.length;
-                    const mobile = data.filter(v => v.vl_device_type === 'mobile').length;
-                    const pc = data.filter(v => v.vl_device_type === 'pc').length;
-                    const today = data.filter(v => v.vl_date_int === todayInt).length;
-
-                    let rowPopupFormatter = function (e, row, onRendered) {
-                        let data = row.getData(),
-                            container = document.createElement("div"),
-                            contents = "<strong style='font-size:1.2em;'>USER AGENT</strong>";
-                        contents += `<div>${data.vl_user_agent}</div>`;
-
-                        container.innerHTML = contents;
-
-                        return container;
-                    };
-
-                    //create header popup contents
-                    let headerPopupFormatter = function (e, column, onRendered) {
-                        let container = document.createElement("div");
-
-                        let label = document.createElement("label");
-                        label.innerHTML = "Filter Column:";
-                        label.style.display = "block";
-                        label.style.fontSize = ".7em";
-
-                        let input = document.createElement("input");
-                        input.placeholder = "Filter Column...";
-                        input.value = column.getHeaderFilterValue() || "";
-
-                        input.addEventListener("keyup", (e) => {
-                            column.setHeaderFilterValue(input.value);
-                        });
-
-                        container.appendChild(label);
-                        container.appendChild(input);
-
-                        return container;
-                    }
-
-                    //create dummy header filter to allow popup to filter
-                    let emptyHeaderFilter = function () {
-                        return document.createElement("div");;
-                    }
-
-
                     // Tabulator 테이블 생성
                     const table = new Tabulator("#admin-table", {
                         data: data, // 초기 데이터를 여기서 설정
                         layout: "fitColumns",
                         placeholder: "데이터가 없습니다.",
-                        // rowClickPopup: rowPopupFormatter,
                         rowHeight: 40,
                         headerHeight: 40,
+                        headerVisible: false,
                         rowFormatter: function (row) {
-                            const rowData = row.getData();
-                            if (rowData.vl_date_int === todayInt) {
-                                row.getElement().classList.add("today-row");
+                            let element = row.getElement(),
+                                data = row.getData(),
+                                width = element.offsetWidth,
+                                rowTable, cellContents;
+                            while (element.firstChild) element.removeChild(element.firstChild);
+                            let itemCont = "";
+                            if (!data.gb_message?.trim()) {
+                                row.getElement().classList.add("no-msg");
+                                itemCont += `<div class="gb-item">${data.gb_emoji}</div>`;
+                            } else {
+                                row.getElement().classList.add("has-msg");
+                                itemCont += `<div class="gb-item"><p>${formatDate(data.gb_created_at)}</p>
+                                    <p>${data.gb_emoji}</p>`;
+                                if (!data.gb_card_image_url?.trim()) { // 카드 X
+                                    itemCont += `${data.gb_message}
+                                        <p><button class='btn btn-sm btn-primary' data-gen-id="${data.gb_id}" onclick="generateCard(${data.gb_id}, \`${data.gb_message}\`, \`${data.gb_emoji}\`)">이미지 생성</button></p>
+                                    `;
+                                } else { // 카드 O
+                                    const cardUrl = `https://png-converter.onrender.com/view-card?id=${data.gb_id}`;
+                                    itemCont += `<div class="img-wrapper" onclick=""><img src="${data.gb_card_image_url}" onclick='window.open("${cardUrl}")' /></div>`;
+                                }
+                                if (!data.gb_answer_url?.trim()) {
+                                    itemCont += `<div>
+                                        <input type="text" id="answer-input-${data.gb_id}" />
+                                        <button class='btn btn-sm btn-primary' onclick="submitAnswer('${data.gb_id}')">입력</button>
+                                    </div>`;
+                                } else {
+                                    itemCont += `<a href="${data.gb_answer_url}" target="_blank" class="btn btn-sm btn-outline-light">답장 보기</a>`;
+                                }
+                                itemCont += `</div>`;
                             }
+                            element.innerHTML = itemCont;
+
                         },
-                        columns: [
-                            {
-                                title: "방문 시간",
-                                field: "gb_created_at",
-                                width: 180,
-                                headerHozAlign: "center",
-                                hozAlign: "center",
-                                formatter: function (cell) {
-                                    return formatDate(cell.getValue());
-                                }
-                            },
-                            {
-                                title: "IP",
-                                field: "gb_ip",
-                                width: 180,
-                                headerHozAlign: "center",
-                                hozAlign: "center",
-                            },
-                            {
-                                title: "이모지",
-                                field: "gb_emoji",
-                                width: 100,
-                                headerHozAlign: "center",
-                                hozAlign: "center",
-                            },
-                            {
-                                title: "메세지",
-                                field: "gb_message",
-                                widthGrow: true,
-                                headerHozAlign: "center",
-                                hozAlign: "left",
-                            },
-                            {
-                                title: "이미지",
-                                hozAlign: "center",
-                                width: 120,
-                                formatter: function (cell) {
-                                    const data = cell.getRow().getData()
-                                    return data.gb_card_image_url
-                                        ? "완료"
-                                        : "<button class='btn btn-sm btn-primary'>생성</button>"
-                                },
-                                cellClick: async function (e, cell) {
-                                    const row = cell.getRow().getData()
-                                    const el = cell.getElement()
-
-                                    if (row.gb_card_image_url) return
-
-                                    el.innerHTML = "생성중..."
-
-                                    try {
-                                        // 1️⃣ Edge Function 호출 → SVG URL 반환
-                                        const res = await fetch("https://mqruxlhrxniyzbhkhmtc.supabase.co/functions/v1/create-card", {
-                                            method: "POST",
-                                            headers: {
-                                                "Content-Type": "application/json",
-                                                "apikey": SUPABASE_ANON_KEY,
-                                                "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
-                                            },
-                                            body: JSON.stringify({
-                                                id: row.gb_id,
-                                                message: row.gb_message,
-                                                emoji: row.gb_emoji
-                                            })
-                                        })
-                                        const { url: svgUrl } = await res.json()
-
-                                        // 2️⃣ Render 서버 호출 → PNG 변환
-                                        const pngRes = await fetch("https://png-converter.onrender.com/convert", {
-                                            method: "POST",
-                                            headers: { "Content-Type": "application/json" },
-                                            body: JSON.stringify({ id: row.gb_id, svgUrl })
-                                        })
-                                        const { url: pngUrl } = await pngRes.json()
-
-                                        el.innerHTML = "완료"
-                                    } catch (err) {
-                                        el.innerHTML = "실패"
-                                        console.error(err)
-                                    }
-                                }
-                            },
-                            {
-                                title: "링크",
-                                field: "gb_link",
-                                widthGrow: true,
-                                headerHozAlign: "center",
-                                hozAlign: "left",
-                                width: 120,
-                                formatter: function (cell) {
-                                    const id = cell.getRow().getData().gb_id;
-                                    return `<button class='btn btn-sm btn-primary' onclick='window.open("https://png-converter.onrender.com/view-card?id=${id}")'>이동</button>`;
-                                },
-                            },
-                        ]
                     });
 
                     table.on("renderComplete", function () {
