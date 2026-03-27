@@ -82,7 +82,7 @@ await Promise.all(
     graphemeImages[emoji] = await emojiToBase64(emoji)
   })
 )
-      
+
     const svg = await satori(
       {
         type: "div",
@@ -114,23 +114,12 @@ await Promise.all(
                   {
                     type: "div",
                     props: {
-                      children: "ask me anything",
+                      children: `ask me anything ${safeEmoji}`,
                       style: {
                         fontSize: "48px",
                         fontWeight: 700,
                         color: "#d1d5db",
                         marginBottom: "40px",
-                      },
-                    },
-                  },
-                  // 이모지
-                  {
-                    type: "div",
-                    props: {
-                      children: safeEmoji,
-                      style: {
-                        fontSize: "60px",
-                        marginBottom: "20px",
                       },
                     },
                   },

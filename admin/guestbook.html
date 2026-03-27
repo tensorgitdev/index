@@ -37,7 +37,11 @@
             text-align: center;
         }
 
-        .btn-row-delete {position: absolute; right: 15px; top: 15px;}
+        .btn-row-delete {
+            position: absolute;
+            right: 15px;
+            top: 15px;
+        }
     </style>
 </head>
 
@@ -112,6 +116,15 @@
 
             // 답변 카드 삭제 함수
             window.deleteCardImg = async function (gb_id) {
+                const { error: storageError } = await sb.storage
+                    .from('guestbook')
+                    .remove([`cards/${gb_id}.svg`, `cards/${gb_id}.png`]);
+
+                if (storageError) {
+                    console.error('스토리지 삭제 실패:', storageError);
+                    return;
+                }
+
                 const { error } = await sb
                     .from('guestbook')
                     .update({ gb_card_image_url: null })
