@@ -72,10 +72,10 @@
             const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1xcnV4bGhyeG5peXpiaGtobXRjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgzMjgzMDIsImV4cCI6MjA4MzkwNDMwMn0.qPt-dN4Uj0d0pKU11AYy782XMuoXeJ7CFiVXmEyrJzA';
 
             // 카드 생성 함수
-            window.generateCard = async function (gb_id, gb_message, gb_emoji) {
-                console.log("gb_id",gb_id);
-                console.log("gb_message",gb_message);
-                console.log("gb_emoji",gb_emoji);
+            window.generateCard = async function (id, message, emoji) {
+                console.log("gb_id",id);
+                console.log("gb_message",message);
+                console.log("gb_emoji",emoji);
                 const btn = document.querySelector(`[data-gen-id="${gb_id}"]`);
                 btn.disabled = true;
                 btn.innerText = "생성중...";
@@ -88,14 +88,14 @@
                             "apikey": SUPABASE_ANON_KEY,
                             "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
                         },
-                        body: JSON.stringify({ id: gb_id, gb_message, gb_emoji })
+                        body: JSON.stringify({ id: id, message, emoji })
                     });
                     const { url: svgUrl } = await res.json();
 
                     const pngRes = await fetch("https://png-converter.onrender.com/convert", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ id: gb_id, svgUrl })
+                        body: JSON.stringify({ id: id, svgUrl })
                     });
                     const { url: pngUrl } = await pngRes.json();
 
