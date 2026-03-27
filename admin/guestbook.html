@@ -73,6 +73,9 @@
 
             // 카드 생성 함수
             window.generateCard = async function (gb_id, gb_message, gb_emoji) {
+                console.log("gb_id",gb_id);
+                console.log("gb_message",gb_message);
+                console.log("gb_emoji",gb_emoji);
                 const btn = document.querySelector(`[data-gen-id="${gb_id}"]`);
                 btn.disabled = true;
                 btn.innerText = "생성중...";
