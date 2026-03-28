@@ -10,11 +10,29 @@ const corsHeaders = {
 
 function emojiToTwemojiUrl(emoji) {
   const codePoint = [...emoji]
-    .map(e => e.codePointAt(0))
-    .filter(cp => cp !== 0xfe0f) // variation selector 제거
-    .map(cp => cp.toString(16).padStart(4, '0'))
+    .map(e => e.codePointAt(0).toString(16))
+    .filter(c => c !== 'fe0f')
     .join('-')
   return `https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/${codePoint}.png`
+}
+
+function extractEmojis(str) {
+  const emojiRegex = /\p{Emoji_Presentation}|\p{Emoji}\uFE0F/gu
+  return [...new Set(str.match(emojiRegex) || [])]
+}
+
+async function emojiToBase64(emoji) {
+  const codePoint = [...emoji]
+    .map(e => e.codePointAt(0))
+    .filter(cp => cp !== 0xfe0f)
+    .map(cp => cp.toString(16).padStart(4, '0'))
+    .join('-')
+  const url = `https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/${codePoint}.png`
+  const res = await fetch(url)
+  if (!res.ok) throw new Error(`이모지 fetch 실패: ${url}`)
+  const buf = await res.arrayBuffer()
+  const base64 = btoa(String.fromCharCode(...new Uint8Array(buf)))
+  return `data:image/png;base64,${base64}`
 }
 
 serve(async (req) => {
@@ -43,10 +61,27 @@ serve(async (req) => {
       fetch("https://github.com/googlefonts/noto-cjk/raw/main/Sans/SubsetOTF/KR/NotoSansKR-Bold.otf").then(res => res.arrayBuffer())
     ])
 
+    /*
     const graphemeImages = {
       [safeEmoji]: emojiToTwemojiUrl(safeEmoji)
     }
     console.log("이모지 URL:", graphemeImages)
+    */
+
+    /*
+    const emojiBase64 = await emojiToBase64(safeEmoji)
+    const graphemeImages = {
+      [safeEmoji]: emojiBase64
+    }*/
+
+// 메시지 + 이모지 필드에서 모든 이모지 추출
+const allEmojis = extractEmojis(safeMessage + safeEmoji)
+const graphemeImages = {}
+await Promise.all(
+  allEmojis.map(async (emoji) => {
+    graphemeImages[emoji] = await emojiToBase64(emoji)
+  })
+)
 
     const svg = await satori(
       {
@@ -79,23 +114,12 @@ serve(async (req) => {
                   {
                     type: "div",
                     props: {
-                      children: "ask me anything",
+                      children: `ask me anything ${safeEmoji}`,
                       style: {
                         fontSize: "48px",
                         fontWeight: 700,
                         color: "#d1d5db",
                         marginBottom: "40px",
-                      },
-                    },
-                  },
-                  // 이모지
-                  {
-                    type: "div",
-                    props: {
-                      children: safeEmoji,
-                      style: {
-                        fontSize: "60px",
-                        marginBottom: "20px",
                       },
                     },
                   },

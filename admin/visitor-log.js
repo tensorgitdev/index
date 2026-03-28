@@ -1,16 +1,49 @@
+
 document.addEventListener('supabaseReady', async function (e) {
     const { sb, session } = e.detail;
+    renderCard();
     renderTable();
     renderChart();
+
 });
+
+function toLocalISOString(date) {
+    const offset = date.getTimezoneOffset() * 60000
+    return new Date(date - offset).toISOString()
+}
+
+async function renderCard() {
+    // 전체 레코드
+    const todayFilter = new Date()
+    todayFilter.setHours(0, 0, 0, 0)
+
+    const { count: totalCount, error: error1 } = await sb
+        .from('visitor_log')
+        .select('*', { count: 'exact', head: true });
+
+    const { count: todayCount, error: error2 } = await sb
+        .from('visitor_log')
+        .select('*', { count: 'exact', head: true })
+        .gte('vl_visited_at', toLocalISOString(todayFilter));
+
+    console.log(totalCount);
+    console.log(todayCount);
+    $("#total-visitors").html(totalCount);
+    $("#today-visitors").html(todayCount);
+}
 
 async function renderTable() {
     try {
+
+
+        const todayFilter = new Date()
+        todayFilter.setHours(0, 0, 0, 0)
+
         const { data, error } = await sb
             .from('visitor_log')
             .select('*')
+            .gte('vl_visited_at', toLocalISOString(todayFilter))
             .order('vl_visited_at', { ascending: false });
-
         if (error) throw error;
 
         const now = new Date();
@@ -20,132 +53,89 @@ async function renderTable() {
             now.getDate().toString().padStart(2, '0')
         );
 
-        console.log("data", data);
-
         const total = data.length;
-        const mobile = data.filter(v => v.vl_device_type === 'mobile').length;
-        const pc = data.filter(v => v.vl_device_type === 'pc').length;
-        const today = data.filter(v => v.vl_date_int === todayInt).length;
+        // $("#total-visitors").html(total);
+        // $("#today-visitors").html(data.filter(v => v.vl_date_int === todayInt).length);
 
-        //document.getElementById('totalVisitors').textContent = total;
-        //document.getElementById('mobileVisitors').textContent = mobile;
-        //document.getElementById('pcVisitors').textContent = pc;
-        $("#total-visitors").html(total);
-        $("#today-visitors").html(today);
-
-        let rowPopupFormatter = function(e, row, onRendered){
-            let data = row.getData(),
-            container = document.createElement("div"),
-            contents = "<strong style='font-size:1.2em;'>USER AGENT</strong>";
-            contents += `<div>${data.vl_user_agent}</div>`;
-
-            container.innerHTML = contents;
-
+        let rowPopupFormatter = function (e, row) {
+            let data = row.getData()
+            let container = document.createElement("div")
+            container.innerHTML = `<strong style='font-size:1.2em;'>USER AGENT</strong><div>${data.vl_user_agent}</div>`
             return container;
         };
 
-        //create header popup contents
-        let headerPopupFormatter = function(e, column, onRendered){
-            let container = document.createElement("div");
-
-            let label = document.createElement("label");
-            label.innerHTML = "Filter Column:";
-            label.style.display = "block";
-            label.style.fontSize = ".7em";
-
-            let input = document.createElement("input");
-            input.placeholder = "Filter Column...";
-            input.value = column.getHeaderFilterValue() || "";
-
-            input.addEventListener("keyup", (e) => {
-                column.setHeaderFilterValue(input.value);
-            });
-
-            container.appendChild(label);
-            container.appendChild(input);
-
-            return container;
-        }
-
-        //create dummy header filter to allow popup to filter
-        let emptyHeaderFilter = function(){
-            return document.createElement("div");;
-        }
-
-
-        // Tabulator 테이블 생성
-        const table = new Tabulator("#admin-table", {
-            data: data, // 초기 데이터를 여기서 설정
+        let table = new Tabulator("#admin-table", {
+            data: data,
             layout: "fitColumns",
             placeholder: "데이터가 없습니다.",
-            rowClickPopup:rowPopupFormatter,
-            rowHeight:40, 
+            rowClickPopup: rowPopupFormatter,
+            rowHeight: 40,
             headerHeight: 40,
-            rowFormatter: function(row) {
-                const rowData = row.getData();
-                if (rowData.vl_date_int === todayInt) {
+            rowFormatter: function (row) {
+                if (row.getData().vl_date_int === todayInt) {
                     row.getElement().classList.add("today-row");
                 }
             },
             columns: [
                 {
-                    title: "방문 시간",
-                    field: "vl_visited_at",
-                    width: 180,
-                    headerHozAlign: "center",
-                    hozAlign:"center",
-                    formatter: function (cell) {
-                        return formatDate(cell.getValue());
-                    }
+                    title: "방문 시간", field: "vl_visited_at", width: 180,
+                    headerHozAlign: "center", hozAlign: "center",
+                    formatter: cell => formatDate(cell.getValue())
                 },
                 {
-                    title: "IP",
-                    field: "vl_ip",
-                    width: 180,
-                    headerHozAlign: "center",
-                    hozAlign:"center",
+                    title: "IP", field: "vl_ip", width: 180,
+                    headerHozAlign: "center", hozAlign: "center",
                 },
                 {
-                    title: "국가",
-                    field: "vl_country_code",
-                    width: 100,
-                    headerHozAlign: "center",    
-                    formatter: function (cell) {
-                        const flag = countryCodeToFlag(cell.getValue());
-                        return `<div style="text-align:center; " title="${cell.getValue()}">${flag}</div>`;
-                    }
-                },                            
-                {
-                    title: "브라우저 정보",
-                    field: "vl_user_agent",
+                    title: "국가", field: "vl_country_code", width: 100,
                     headerHozAlign: "center",
+                    formatter: cell => `<div style="text-align:center;" title="${cell.getValue()}">${countryCodeToFlag(cell.getValue())}</div>`
+                },
+                {
+                    title: "브라우저 정보", field: "vl_user_agent",
+                    headerHozAlign: "center", widthGrow: true,
                     formatter: function (cell) {
                         const parsed = parseUserAgent(cell.getValue());
-                        return `<span style="display: inline-block; width: 30px; text-align:center;">${parsed.device}</span> <strong>${parsed.browser}</strong> on ${parsed.os}
-                    `;
-                    },
-                    widthGrow: true
+                        return `<span style="display:inline-block;width:30px;text-align:center;">${parsed.device}</span> <strong>${parsed.browser}</strong> on ${parsed.os}`;
+                    }
                 },
                 {
-                    title: "디바이스",
-                    field: "vl_device_type",
-                    width: 100,
-                    hozAlign:"center",
-                    headerHozAlign: "center",
-                    formatter: function (cell) {
+                    title: "디바이스", field: "vl_device_type", width: 100,
+                    hozAlign: "center", headerHozAlign: "center",
+                    formatter: cell => {
                         const type = cell.getValue();
-                        let icon = "";
-                        if(type.toUpperCase() == "PC"){icon = "🖥";} else {icon = "📱";}
-                        return `<span class="device-badge device-${type}">${icon}</span>`;
+                        return `<span class="device-badge device-${type}">${type.toUpperCase() === "PC" ? "🖥" : "📱"}</span>`;
                     }
                 }
-
             ]
         });
 
-        table.on("renderComplete", function () {
-            twemoji.parse(document.body);
-        });
+        table.on("renderComplete", () => twemoji.parse(document.body));
+
+        flatpickr("#date-filter", {
+            mode: "range",
+            dateFormat: "Y-m-d",
+            maxDate: "today",
+            defaultDate: ["today", "today"],
+            onChange: async function (selectedDates) {
+                if (selectedDates.length === 2) {
+                    const start = new Date(selectedDates[0])
+                    start.setHours(0, 0, 0, 0)
+                    const end = new Date(selectedDates[1])
+                    end.setHours(23, 59, 59, 999)
+
+                    const { data, error } = await sb
+                        .from('visitor_log')
+                        .select('*')
+                        .gte('vl_visited_at', toLocalISOString(start))
+                        .lte('vl_visited_at', toLocalISOString(end))
+                        .order('vl_visited_at', { ascending: false });
+
+                    if (error) return console.error(error);
+                    table.setData(data);
+                }
+            }
+        })
 
         loadComplete();
 
@@ -155,27 +145,27 @@ async function renderTable() {
 }
 
 async function renderChart() {
-  const { data, error } = await sb
-    .from('visitor_log')
-    .select('vl_date_int')
-    .order('vl_date_int', { ascending: true });
+    const { data, error } = await sb
+        .from('visitor_log')
+        .select('vl_date_int')
+        .order('vl_date_int', { ascending: true });
 
-  if (error) {
-    console.error(error);
-    return;
-  }
+    if (error) {
+        console.error(error);
+        return;
+    }
 
-  // vl_date_int 기준으로 count 집계
-  const countMap = {};
-  for (const row of data) {
-    countMap[row.vl_date_int] = (countMap[row.vl_date_int] || 0) + 1;
-  }
+    // vl_date_int 기준으로 count 집계
+    const countMap = {};
+    for (const row of data) {
+        countMap[row.vl_date_int] = (countMap[row.vl_date_int] || 0) + 1;
+    }
 
-  const categories = Object.keys(countMap).map(n => {
-    const s = String(n);
-    return `${s.slice(0,4)}-${s.slice(4,6)}-${s.slice(6,8)}`;
-  });
-  const seriesData = Object.values(countMap);
+    const categories = Object.keys(countMap).map(n => {
+        const s = String(n);
+        return `${s.slice(0, 4)}-${s.slice(4, 6)}-${s.slice(6, 8)}`;
+    });
+    const seriesData = Object.values(countMap);
 
     const options = {
         series: [{
@@ -218,6 +208,6 @@ async function renderChart() {
         }
     };
 
-  const chart = new ApexCharts(document.querySelector("#apexchart-wrapper"), options);
-  chart.render();
+    const chart = new ApexCharts(document.querySelector("#apexchart-wrapper"), options);
+    chart.render();
 }

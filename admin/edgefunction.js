@@ -74,14 +74,14 @@ serve(async (req) => {
       [safeEmoji]: emojiBase64
     }*/
 
-// 메시지 + 이모지 필드에서 모든 이모지 추출
-const allEmojis = extractEmojis(safeMessage + safeEmoji)
-const graphemeImages = {}
-await Promise.all(
-  allEmojis.map(async (emoji) => {
-    graphemeImages[emoji] = await emojiToBase64(emoji)
-  })
-)
+    // 메시지 + 이모지 필드에서 모든 이모지 추출
+    const allEmojis = extractEmojis(safeMessage + safeEmoji)
+    const graphemeImages = {}
+    await Promise.all(
+      allEmojis.map(async (emoji) => {
+        graphemeImages[emoji] = await emojiToBase64(emoji)
+      })
+    )
 
     const svg = await satori(
       {
@@ -114,7 +114,7 @@ await Promise.all(
                   {
                     type: "div",
                     props: {
-                      children: `ask me anything ${safeEmoji}`,
+                      children: safeEmoji,
                       style: {
                         fontSize: "48px",
                         fontWeight: 700,
@@ -123,6 +123,18 @@ await Promise.all(
                       },
                     },
                   },
+                  {
+                    type: "div",
+                    props: {
+                      children: "ask me anything",
+                      style: {
+                        fontSize: "48px",
+                        fontWeight: 700,
+                        color: "#d1d5db",
+                        marginBottom: "20px",
+                      },
+                    },
+                  },                  
                   // 메시지
                   {
                     type: "div",

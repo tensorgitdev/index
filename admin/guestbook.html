@@ -2,60 +2,56 @@
 <html lang="ko">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ADMIN</title>
-    <script src="inc/common.js"></script>
-    <style>
-        .no-msg {
-            display: inline-block;
-            padding: 7px 5px;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ADMIN</title>
+<script src="inc/common.js"></script>
+<script src="guestbook.js"></script>
+<style>
+.no-msg {
+    display: inline-block;
+    padding: 7px 5px;
+}
 
-        .has-msg {
-            width: 500px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 20px;
-            word-break: break-all;
-            overflow-wrap: break-word;
-            white-space: normal;
-            border-radius: 10px;
-            margin: 7px 0px 7px 0px;
-            background: rgba(255, 255, 255, 0.1) !important;
-            position: relative;
-        }
+.has-msg {
+    width: 500px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 20px;
+    word-break: break-all;
+    overflow-wrap: break-word;
+    white-space: normal;
+    border-radius: 10px;
+    margin: 7px 0px 7px 0px;
+    background: rgba(255, 255, 255, 0.1) !important;
+    position: relative;
+}
 
-        .has-msg img {
-            width: 100%;
-        }
+.has-msg img { width: 100%; }
 
-        .tabulator .tabulator-tableholder .tabulator-table .tabulator-row.no-msg {
-            border: none;
-        }
+.btn-row-delete {
+    position: absolute;
+    right: 15px;
+    top: 15px;
+}
 
-        .tabulator-tableholder {
-            text-align: center;
-        }
-
-        .btn-row-delete {
-            position: absolute;
-            right: 15px;
-            top: 15px;
-        }
-    </style>
+#admin-table {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+}
+</style>
 </head>
 
 <body style="opacity:0;">
 
     <div class="container" id="container">
         <div class="d-flex justify-content-between align-items-center mb-5 px-3">
-            <div id="navigator">
-            </div>
+            <div id="navigator"></div>
             <button class="btn btn-logout px-4" id="logoutBtn">Logout</button>
         </div>
 
         <div class="row g-4">
-
             <div class="col-12 mt-4">
                 <div class="glass-panel text-center">
                     <p class="text-uppercase small opacity-75">Total Visitors</p>
@@ -63,190 +59,13 @@
                 </div>
             </div>
 
-
             <div class="col-12 mt-4">
                 <div class="glass-panel">
                     <div id="admin-table"></div>
                 </div>
             </div>
-
         </div>
     </div>
-    <script>
-        document.addEventListener('supabaseReady', async function (e) {
-            const { sb, session } = e.detail;
-            const SUPABASE_URL = 'https://mqruxlhrxniyzbhkhmtc.supabase.co';
-            const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1xcnV4bGhyeG5peXpiaGtobXRjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgzMjgzMDIsImV4cCI6MjA4MzkwNDMwMn0.qPt-dN4Uj0d0pKU11AYy782XMuoXeJ7CFiVXmEyrJzA';
-
-            // 카드 생성 함수
-            window.generateCard = async function (id, message, emoji) {
-                console.log("gb_id", id);
-                console.log("gb_message", message);
-                console.log("gb_emoji", emoji);
-                const btn = document.querySelector(`[data-gen-id="${id}"]`);
-                btn.disabled = true;
-                btn.innerText = "생성중...";
-
-                try {
-                    const res = await fetch("https://mqruxlhrxniyzbhkhmtc.supabase.co/functions/v1/create-card", {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                            "apikey": SUPABASE_ANON_KEY,
-                            "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
-                        },
-                        body: JSON.stringify({ id: id, message, emoji })
-                    });
-                    const { url: svgUrl } = await res.json();
-
-                    const pngRes = await fetch("https://png-converter.onrender.com/convert", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ id: id, svgUrl })
-                    });
-                    const { url: pngUrl } = await pngRes.json();
-
-                    btn.innerText = "완료";
-                    loadVisitorLogs();
-                } catch (err) {
-                    btn.innerText = "실패";
-                    console.error(err);
-                }
-            }
-
-            // 답변 카드 삭제 함수
-            window.deleteCardImg = async function (gb_id) {
-                const { error: storageError } = await sb.storage
-                    .from('guestbook')
-                    .remove([`cards/${gb_id}.svg`, `cards/${gb_id}.png`]);
-
-                if (storageError) {
-                    console.error('스토리지 삭제 실패:', storageError);
-                    return;
-                }
-
-                const { error } = await sb
-                    .from('guestbook')
-                    .update({ gb_card_image_url: null })
-                    .eq('gb_id', Number(gb_id));
-
-                if (error) {
-                    console.error('삭제 실패:', error);
-                } else {
-                    loadVisitorLogs();
-                }
-            }
-
-            // 답변 url 업데이트 함수
-            window.submitAnswer = async function (id) {
-                const input = document.getElementById(`answer-input-${id}`);
-                const value = input.value.trim();
-                if (!value) return;
-                console.log("gb_id", id);
-                console.log("value", value);
-
-                const { error } = await sb
-                    .from('guestbook')
-                    .update({ gb_answer_url: value })
-                    .eq('gb_id', Number(id))
-
-                if (error) {
-                    console.error('업데이트 실패:', error);
-                } else {
-                    alert('저장됐습니다.');
-                    loadVisitorLogs(); // 테이블 새로고침
-                }
-            }
-
-            window.deleteLog = async function (gb_id) {
-                if (!confirm("삭제하시겠습니까?")) return;
-
-                const { error } = await sb
-                    .from('guestbook')
-                    .delete()
-                    .eq('gb_id', Number(gb_id));
-
-                if (error) {
-                    console.error('삭제 실패:', error);
-                } else {
-                    loadVisitorLogs();
-                }
-            }
-
-            async function loadVisitorLogs() {
-                try {
-                    const { data, error } = await sb
-                        .from('guestbook')
-                        .select('*')
-                        .order('gb_created_at', { ascending: false });
-
-                    if (error) throw error;
-
-                    // Tabulator 테이블 생성
-                    const table = new Tabulator("#admin-table", {
-                        data: data, // 초기 데이터를 여기서 설정
-                        layout: "fitColumns",
-                        placeholder: "데이터가 없습니다.",
-                        rowHeight: 40,
-                        headerHeight: 40,
-                        headerVisible: false,
-                        rowFormatter: function (row) {
-                            let element = row.getElement(),
-                                data = row.getData(),
-                                width = element.offsetWidth,
-                                rowTable, cellContents;
-                            while (element.firstChild) element.removeChild(element.firstChild);
-                            let itemCont = "";
-                            if (!data.gb_message?.trim()) {
-                                row.getElement().classList.add("no-msg");
-                                itemCont += `<div class="gb-item">${data.gb_emoji}</div>`;
-                            } else {
-                                row.getElement().classList.add("has-msg");
-                                itemCont += `<div class="gb-item"><p>${formatDate(data.gb_created_at)} (${data.gb_id})</p>
-                                    <p>${data.gb_emoji}</p>`;
-                                if (!data.gb_card_image_url?.trim()) { // 카드 X
-                                    itemCont += `
-                                        <button onclick="deleteLog(${data.gb_id});" class="btn-row-delete">게시글 삭제</button>
-                                        ${data.gb_message}
-                                        <p><button class='btn btn-sm btn-primary' data-gen-id="${data.gb_id}" onclick="generateCard(${data.gb_id}, \`${data.gb_message}\`, \`${data.gb_emoji}\`)">이미지 생성</button></p>
-                                    `;
-                                } else { // 카드 O
-                                    const cardUrl = `https://png-converter.onrender.com/view-card?id=${data.gb_id}`;
-                                    itemCont += `<div class="img-wrapper" onclick=""><img src="${data.gb_card_image_url}?v=${Date.now()}" onclick='window.open("${cardUrl}")' /></div>`;
-
-                                    if (!data.gb_answer_url?.trim()) {
-                                        itemCont += `<div>
-                                            <button class='btn btn-sm btn-danger' onclick="deleteCardImg('${data.gb_id}');">이미지 삭제</button>
-                                            <input type="text" id="answer-input-${data.gb_id}" />
-                                            <button class='btn btn-sm btn-primary' onclick="submitAnswer('${data.gb_id}')">입력</button>
-                                        </div>`;
-                                    } else {
-                                        itemCont += `<a href="${data.gb_answer_url}" target="_blank" class="btn btn-sm btn-outline-light">답장 보기</a>`;
-                                    }
-
-                                }
-
-                                itemCont += `</div>`;
-                            }
-                            element.innerHTML = itemCont;
-
-                        },
-                    });
-
-                    table.on("renderComplete", function () {
-                        twemoji.parse(document.body);
-                    });
-
-                    loadComplete();
-
-                } catch (error) {
-                    console.error('Error loading visitor logs:', error);
-                }
-            }
-            loadVisitorLogs();
-
-        });
-    </script>
 
 </body>
 
