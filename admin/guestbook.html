@@ -15,24 +15,44 @@
 
 .has-msg {
     width: 500px;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    padding: 20px;
+    
+
     word-break: break-all;
     overflow-wrap: break-word;
     white-space: normal;
-    border-radius: 10px;
+    
     margin: 7px 0px 7px 0px;
-    background: rgba(255, 255, 255, 0.1) !important;
+
     position: relative;
 }
 
+.has-msg .card-head {padding: 10px 15px; border:1px solid rgba(255, 255, 255, 0.3); border-bottom-color: rgba(255, 255, 255, 0.2);       border-radius: 10px 10px 0px 0px;
+   background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(30px);}
+.has-msg .card-head img.emoji {width: 1.1em; height: 1.1em; position: relative; top:1px; }
+.has-msg .card-head .date {font-weight: bold;}
+.has-msg .card-body {padding: 15px; background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(30px);border:1px solid rgba(255, 255, 255, 0.3);  border-top:none;}
+.btn-row-delete {position: absolute; right: 10px; top: 8px;}
 .has-msg img { width: 100%; }
+.icon-btn {background: transparent; border: none; color:#ffffff; font-size: 16px; padding:0; margin:0; }
+.icon-btn svg {width: 20px;; height: 20px;}
+.create-card-btn {}
+.delete-card-btn {position: absolute; right: 40px; top: 8px;}
+.w100-btn {width: 100%; background: rgba(255, 255, 255, 0.3); backdrop-filter: blur(30px); border: none; border-radius: 0px 0px 10px 10px; padding: 9px; color:#ffffff}
 
-.btn-row-delete {
-    position: absolute;
-    right: 15px;
-    top: 15px;
-}
+.answer-form  {background: rgba(255, 255, 255, 0.3); backdrop-filter: blur(30px); border:1px solid rgba(255, 255, 255, 0.3); border-radius: 0px 0px 10px 10px;}
+.answer-form input {width: 100%; background:transparent; padding: 8px 10px; color:#ffffff; border:none;}
+.answer-form input::placeholder {color:rgba(255, 255, 255, 0.5);}
+.card-foot .update-answer-btn {width: 50px;}
+.card-foot .update-answer-btn svg {width: 20px;; height: 20px;}
+.update-answer-btn {}
+.badge-complete {}
+.badge-complete svg {width: 18px; height: 18px; position: relative; top:-1px;}
+
+.complete {opacity: 0.5; border-radius: 10px; border:1px solid rgba(0, 255, 116, 0.3);}
+.complete:hover {opacity: 1.0;}
+.complete .badge-complete {color:#00FF74;}
+.complete .card-head {background-color: rgba(102, 173, 124, 0.2); border:none;}
+.complete .w100-btn {background-color: rgba(102, 173, 124, 0.3); border:none;}
 
 #admin-table {
     display: flex;

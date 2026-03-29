@@ -153,6 +153,8 @@ document.addEventListener('DOMContentLoaded', async function () {
         <a href="guestbook.html">방문록</a>
     `);
 
+    lucide.createIcons();
+
 });
 
 // 국가 코드를 국기 이모지로 변환

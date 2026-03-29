@@ -107,8 +107,12 @@ serve(async (req) => {
                   alignItems: "center",
                   backgroundColor: "#ffffff",
                   borderRadius: "60px",
-                  padding: "80px 100px",
+                  padding: "60px 80px",
                   position: "relative",
+                        flex: 1,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",                  
                 },
                 children: [
                   {
@@ -116,7 +120,7 @@ serve(async (req) => {
                     props: {
                       children: safeEmoji,
                       style: {
-                        fontSize: "48px",
+                        fontSize: "90px",
                         fontWeight: 700,
                         color: "#d1d5db",
                         marginBottom: "40px",
@@ -128,41 +132,27 @@ serve(async (req) => {
                     props: {
                       children: "ask me anything",
                       style: {
-                        fontSize: "48px",
+                        fontSize: "40px",
                         fontWeight: 700,
                         color: "#d1d5db",
                         marginBottom: "20px",
                       },
                     },
                   },                  
-                  // 메시지
                   {
                     type: "div",
                     props: {
+                      children: safeMessage,
                       style: {
-                        flex: 1,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                      },
-                      children: [
-                        {
-                          type: "div",
-                          props: {
-                            children: safeMessage,
-                            style: {
-                              fontSize: "40px",
+                         fontSize: "40px",
                               fontWeight: 400,
                               lineHeight: "1.2",
                               color: "#374151",
                               textAlign: "center",
                               wordBreak: "keep-all",
-                            },
-                          },
-                        },
-                      ],
+                      },
                     },
-                  },
+                  },                  
                 ],
               },
             },
